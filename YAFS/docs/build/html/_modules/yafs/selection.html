@@ -1,0 +1,223 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>yafs.selection &#8212; YAFS 0.3 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for yafs.selection</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This algorithm have one obligatory functions:</span>
+
+<span class="sd">        *get_path*: It provides the route to follow the message within the topology to reach the destination module, it can also be seen as an orchestration algorithm.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+
+<div class="viewcode-block" id="Selection"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.Selection">[docs]</a><span class="k">class</span> <span class="nc">Selection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A selection algorithm provide the route among topology entities for that a message reach the destiny module.</span>
+
+<span class="sd">    .. note:: A class interface</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transmit</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat_acc</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">propagation</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<div class="viewcode-block" id="Selection.get_path"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.Selection.get_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">topology_src</span><span class="p">,</span><span class="n">alloc_DES</span><span class="p">,</span> <span class="n">alloc_module</span><span class="p">,</span> <span class="n">traffic</span><span class="p">,</span> <span class="n">from_des</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">        :param sim:</span>
+<span class="sd">        :param message:</span>
+<span class="sd">        :param link:</span>
+<span class="sd">        :param alloc_DES:</span>
+<span class="sd">        :param alloc_module:</span>
+<span class="sd">        :param traffic:</span>
+<span class="sd">        :param ctime:</span>
+<span class="sd">        :param from_des</span>
+<span class="sd">        :return:</span>
+<span class="sd">           both empty arrays implies that the message will not send to the destination.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            a path among nodes</span>
+
+<span class="sd">            an identifier of the module</span>
+
+<span class="sd">        .. attention:: override required</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Selection&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot; Define Selection &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="sd">&quot;&quot;&quot; END Selection &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span><span class="n">ids</span></div>
+
+<div class="viewcode-block" id="Selection.get_path_from_failure"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.Selection.get_path_from_failure">[docs]</a>    <span class="k">def</span> <span class="nf">get_path_from_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">alloc_DES</span><span class="p">,</span> <span class="n">alloc_module</span><span class="p">,</span> <span class="n">traffic</span><span class="p">,</span> <span class="n">ctime</span><span class="p">,</span> <span class="n">from_des</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is call when some link of a message path is broken or unavailable. A new one from that point should be calculated.</span>
+
+<span class="sd">        :param sim:</span>
+<span class="sd">        :param message:</span>
+<span class="sd">        :param link:</span>
+<span class="sd">        :param alloc_DES:</span>
+<span class="sd">        :param alloc_module:</span>
+<span class="sd">        :param traffic:</span>
+<span class="sd">        :param ctime:</span>
+<span class="sd">        :param from_des</span>
+<span class="sd">        :return:</span>
+<span class="sd">           both empty arrays implies that the message will not send to the destination.</span>
+
+<span class="sd">        .. attention:: this function is optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Define Selection &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="sd">&quot;&quot;&quot; END Selection &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">ids</span></div></div>
+
+<div class="viewcode-block" id="OneRandomPath"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.OneRandomPath">[docs]</a><span class="k">class</span> <span class="nc">OneRandomPath</span><span class="p">(</span><span class="n">Selection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Among all the possible options, it returns a random path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OneRandomPath.get_path"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.OneRandomPath.get_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">topology_src</span><span class="p">,</span><span class="n">alloc_DES</span><span class="p">,</span> <span class="n">alloc_module</span><span class="p">,</span> <span class="n">traffic</span><span class="p">,</span><span class="n">from_des</span><span class="p">):</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dst_idDES</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">src_node</span> <span class="o">=</span> <span class="n">topology_src</span>
+        <span class="n">DES</span> <span class="o">=</span> <span class="n">alloc_module</span><span class="p">[</span><span class="n">message</span><span class="o">.</span><span class="n">app_name</span><span class="p">][</span><span class="n">message</span><span class="o">.</span><span class="n">dst</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idDES</span> <span class="ow">in</span> <span class="n">DES</span><span class="p">:</span>
+            <span class="n">dst_node</span> <span class="o">=</span> <span class="n">alloc_module</span><span class="p">[</span><span class="n">idDES</span><span class="p">]</span>
+            <span class="n">pathX</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">all_simple_paths</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">src_node</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">dst_node</span><span class="p">))</span>
+            <span class="n">one</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pathX</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathX</span><span class="p">[</span><span class="n">one</span><span class="p">])</span>
+            <span class="n">dst_idDES</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idDES</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">paths</span><span class="p">,</span><span class="n">dst_idDES</span></div></div>
+
+
+
+<div class="viewcode-block" id="First_ShortestPath"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.First_ShortestPath">[docs]</a><span class="k">class</span> <span class="nc">First_ShortestPath</span><span class="p">(</span><span class="n">Selection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Among all possible shorter paths, returns the first.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="First_ShortestPath.get_path"><a class="viewcode-back" href="../../api_reference/yafs.html#yafs.selection.First_ShortestPath.get_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">app_name</span><span class="p">,</span><span class="n">message</span><span class="p">,</span> <span class="n">topology_src</span><span class="p">,</span> <span class="n">alloc_DES</span><span class="p">,</span> <span class="n">alloc_module</span><span class="p">,</span> <span class="n">traffic</span><span class="p">,</span><span class="n">from_des</span><span class="p">):</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dst_idDES</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">node_src</span> <span class="o">=</span> <span class="n">topology_src</span> <span class="c1">#TOPOLOGY SOURCE where the message is generated</span>
+        <span class="n">DES_dst</span> <span class="o">=</span> <span class="n">alloc_module</span><span class="p">[</span><span class="n">app_name</span><span class="p">][</span><span class="n">message</span><span class="o">.</span><span class="n">dst</span><span class="p">]</span>
+
+        <span class="c1">#Among all possible path we choose the smallest</span>
+        <span class="n">bestPath</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bestDES</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="n">DES_dst</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">des</span> <span class="ow">in</span> <span class="n">DES_dst</span><span class="p">:</span>
+            <span class="n">dst_node</span> <span class="o">=</span> <span class="n">alloc_DES</span><span class="p">[</span><span class="n">des</span><span class="p">]</span>
+            <span class="c1"># print &quot;DES Node %i &quot; %dst_node</span>
+
+            <span class="n">path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">shortest_path</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">node_src</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">dst_node</span><span class="p">))</span>
+            <span class="n">bestPath</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="n">bestDES</span>  <span class="o">=</span> <span class="p">[</span><span class="n">des</span><span class="p">]</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="n">bestPath</span><span class="p">,</span><span class="n">bestDES</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../../contents.html">Table Of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">OVERVIEW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html#acknowledge">Acknowledge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/index.html">YAFS in 5 Minutes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/index.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference/index.html">API REFERENCE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/index.html">ABOUT</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../contents.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Isaac Lera, Carlos Guerrero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

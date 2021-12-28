@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OVERVIEW &#8212; YAFS 0.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="YAFS in 5 Minutes" href="introduction/index.html" />
+    <link rel="prev" title="Documentation for YAFS" href="contents.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="figure align-center" id="id1">
+<img alt="_images/yafs_logo.png" src="_images/yafs_logo.png" />
+<p class="caption"><span class="caption-text">Yet Another Fog Simulator for Python</span></p>
+</div>
+<div class="sidebar">
+<p class="first sidebar-title">Documentation</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="introduction/index.html#intro"><span class="std std-ref">Tutorial</span></a></dt>
+<dd>learn the basics</dd>
+<dt><a class="reference internal" href="architecture/index.html#architecture"><span class="std std-ref">Topical Guides</span></a></dt>
+<dd>guides covering various features of this architecture</dd>
+<dt><a class="reference internal" href="examples/index.html#examples"><span class="std std-ref">Examples</span></a></dt>
+<dd>usage examples</dd>
+<dt><a class="reference internal" href="api_reference/index.html#api-reference"><span class="std std-ref">API Reference</span></a></dt>
+<dd>detailed description of YAFS’ API</dd>
+<dt><a class="reference internal" href="about/index.html#about"><span class="std std-ref">About</span></a></dt>
+<dd>authors, history, license, citing, …</dd>
+</dl>
+</div>
+<div class="section" id="overview">
+<h1>OVERVIEW<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>YAFS (Yet Another Fog Simulator) is a simulation library for Cloud, Edge or <a class="reference external" href="https://en.wikipedia.org/wiki/Fog_computing">Fog Computing</a> ecosystems enabling several analysis regarding with the allocation of resources, billing management, network design, and so on.</p>
+<p>It is a lightweight, robust and highly configurable simulator based on Simpy library (discrete event simulator) and Complex Network theory. YAFS is set by a reduced number of classes (only 7) thus we believe the learning curve is quite low compared
+to other similar simulators. This number of classes offer an absolute control to the user for the implementation of several customized policies and environment characteristics. We highlight the following points:</p>
+<ul class="simple">
+<li><strong>Topology</strong> The infrastructure is modelled using <a class="reference external" href="https://en.wikipedia.org/wiki/Complex_network">Complex Networks</a> theory. Any element (network devices, cloud abstractions, software modules, workloads, etc.) are represented by nodes and the links represents the possible network connection between them. In addition, Complex Networks theory provides useful topological features in order to control the deployment of services, the allocation of resources, network design considerations and other customized user policies.</li>
+<li><strong>Dynamic control</strong> All process that the user can extend can be define dynamically, such as topology (i.e. new nodes, links failures, etc.), allocation policies, orchestration, etc.</li>
+<li><strong>Request evolution</strong>  Service requests in FOG environments is not always reduced to the same access points along the whole simulation.  Requests can be generated from any point of the network following a temporary distribution.</li>
+<li><strong>Placement algorithm</strong> Yet another classical module that decides how to assign module applications to the topology.</li>
+<li><strong>Selection algorithm</strong> In a network, routing can be controlled by network devices but with new Fog applications the applications can controlled these messages, it depends on the user abstraction level. It offers new analytical models for the adaptation of traffic.</li>
+<li><strong>Customized distribution</strong> User can generate events to control policies or whatever action in the simulator using customized distributions as for example a simple array of timestamps to deploy software modules.</li>
+</ul>
+<p>YAFS gathers the main events in a raw format. There is not hidden variables or <em>stranger things</em> where this data is stored. This data can be accessed from any point of the simulator so any module has access to the stats.</p>
+<p>The documentation contains a <a class="reference internal" href="introduction/index.html#intro"><span class="std std-ref">tutorial</span></a>, <a class="reference internal" href="architecture/index.html#architecture"><span class="std std-ref">architecture details</span></a> explaining key concepts, a number of <a class="reference internal" href="examples/index.html#examples"><span class="std std-ref">examples</span></a> and the <a class="reference internal" href="api_reference/index.html#api-reference"><span class="std std-ref">API reference</span></a>.</p>
+<p>YAFS is released under the MIT License.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>YAFS requires Python 2.7 (Python 3.6 or above is not supported)</p>
+<p>You can download and install YAFS manually:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/acsicuib/YAFS
+</pre></div>
+</div>
+</div>
+<div class="section" id="cite-this-work">
+<h2>Cite this work<a class="headerlink" href="#cite-this-work" title="Permalink to this headline">¶</a></h2>
+<p>Please, consider including this reference in your works or publications:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Isaac</span> <span class="n">Lera</span><span class="p">,</span> <span class="n">Carlos</span> <span class="n">Guerrero</span><span class="p">,</span> <span class="n">Carlos</span> <span class="n">Juiz</span><span class="o">.</span> <span class="n">YAFS</span><span class="p">:</span> <span class="n">A</span> <span class="n">simulator</span> <span class="k">for</span> <span class="n">IoT</span> <span class="n">scenarios</span> <span class="ow">in</span> <span class="n">fog</span> <span class="n">computing</span><span class="o">.</span> <span class="n">IEEE</span> <span class="n">Access</span><span class="o">.</span> <span class="n">Vol</span><span class="o">.</span> <span class="mi">7</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">pages</span> <span class="mi">91745</span><span class="o">-</span><span class="mi">91758</span><span class="p">,</span>
+<span class="mf">10.1109</span><span class="o">/</span><span class="n">ACCESS</span><span class="o">.</span><span class="mf">2019.2927895</span><span class="p">,</span> <span class="n">Jul</span> <span class="mi">10</span> <span class="mf">2019.</span>
+
+<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">ieeexplore</span><span class="o">.</span><span class="n">ieee</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">document</span><span class="o">/</span><span class="mi">8758823</span>
+
+<span class="nd">@ARTICLE</span><span class="p">{</span><span class="mi">8758823</span><span class="p">,</span>
+<span class="n">author</span><span class="o">=</span><span class="p">{</span><span class="n">I</span><span class="o">.</span> <span class="p">{</span><span class="n">Lera</span><span class="p">}</span> <span class="ow">and</span> <span class="n">C</span><span class="o">.</span> <span class="p">{</span><span class="n">Guerrero</span><span class="p">}</span> <span class="ow">and</span> <span class="n">C</span><span class="o">.</span> <span class="p">{</span><span class="n">Juiz</span><span class="p">}},</span>
+<span class="n">journal</span><span class="o">=</span><span class="p">{</span><span class="n">IEEE</span> <span class="n">Access</span><span class="p">},</span>
+<span class="n">title</span><span class="o">=</span><span class="p">{</span><span class="n">YAFS</span><span class="p">:</span> <span class="n">A</span> <span class="n">Simulator</span> <span class="k">for</span> <span class="n">IoT</span> <span class="n">Scenarios</span> <span class="ow">in</span> <span class="n">Fog</span> <span class="n">Computing</span><span class="p">},</span>
+<span class="n">year</span><span class="o">=</span><span class="p">{</span><span class="mi">2019</span><span class="p">},</span>
+<span class="n">volume</span><span class="o">=</span><span class="p">{</span><span class="mi">7</span><span class="p">},</span>
+<span class="n">number</span><span class="o">=</span><span class="p">{},</span>
+<span class="n">pages</span><span class="o">=</span><span class="p">{</span><span class="mi">91745</span><span class="o">-</span><span class="mi">91758</span><span class="p">},</span>
+<span class="n">keywords</span><span class="o">=</span><span class="p">{</span><span class="n">Relays</span><span class="p">;</span><span class="n">Large</span> <span class="n">scale</span> <span class="n">integration</span><span class="p">;</span><span class="n">Wireless</span> <span class="n">communication</span><span class="p">;</span><span class="n">OFDM</span><span class="p">;</span><span class="n">Interference</span> <span class="n">cancellation</span><span class="p">;</span><span class="n">Channel</span> <span class="n">estimation</span><span class="p">;</span><span class="n">Real</span><span class="o">-</span><span class="n">time</span> <span class="n">systems</span><span class="p">;</span><span class="n">Complex</span> <span class="n">networks</span><span class="p">;</span><span class="n">fog</span> <span class="n">computing</span><span class="p">;</span><span class="n">Internet</span> <span class="n">of</span> <span class="n">Things</span><span class="p">;</span><span class="n">simulator</span><span class="p">},</span>
+<span class="n">doi</span><span class="o">=</span><span class="p">{</span><span class="mf">10.1109</span><span class="o">/</span><span class="n">ACCESS</span><span class="o">.</span><span class="mf">2019.2927895</span><span class="p">},</span>
+<span class="n">ISSN</span><span class="o">=</span><span class="p">{</span><span class="mi">2169</span><span class="o">-</span><span class="mi">3536</span><span class="p">},</span>
+<span class="n">month</span><span class="o">=</span><span class="p">{},</span>
+</pre></div>
+</div>
+<p>Please let it knows us if you use this project in your research. We will cite them. Thank you</p>
+<p>You can find other related works developed with YAFS in the readme of YAFS git hub repository.</p>
+</div>
+</div>
+<div class="section" id="acknowledge">
+<h1>Acknowledge<a class="headerlink" href="#acknowledge" title="Permalink to this headline">¶</a></h1>
+<p>Authors acknowledge financial support through project ORD-CoT (TIN2017-88547-P MINECO, SPAIN).</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="contents.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OVERVIEW</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cite-this-work">Cite this work</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#acknowledge">Acknowledge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">YAFS in 5 Minutes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture/index.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API REFERENCE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about/index.html">ABOUT</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="contents.html">Documentation overview</a><ul>
+      <li>Previous: <a href="contents.html" title="previous chapter">Documentation for YAFS</a></li>
+      <li>Next: <a href="introduction/index.html" title="next chapter">YAFS in 5 Minutes</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Isaac Lera, Carlos Guerrero.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
