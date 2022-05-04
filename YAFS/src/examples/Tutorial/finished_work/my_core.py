@@ -226,41 +226,41 @@ class Sim:
 
         while not self.stop:
 
-            # message = yield self.network_ctrl_pipe.get()
-            # print("TAG CORE2 " + str(self.network_ctrl_pipe.items))
-            #
-            # if not flag:
-            #
-            #     ls = list(self.network_ctrl_pipe.items)
-            #     print("items")
-            #     print(self.network_ctrl_pipe.items)
-            #     # 2 A1, 1 A2, 1 A3
-            #     pos_n1 = 2
-            #     pos_n2 = 3
-            #     n1 = 800
-            #     n2 = 1000
-            #     copy_ls = list(self.network_ctrl_pipe.items)
-            #     for i in range(len(ls)):
-            #         msg = ls[i]
-            #         wait_time = self.env.now  # need to
-            #         print("Wait time" + str(wait_time))
-            #         if msg.msgType == 2 and wait_time > n1:
-            #             copy_ls.insert(pos_n1, copy_ls[i])
-            #             if pos_n1 < len(ls): pos_n1 += 1
-            #
-            #         if msg.msgType == 3 and wait_time > n2:
-            #             copy_ls.insert(pos_n2, copy_ls[i])
-            #             if pos_n2 < len(ls): pos_n2 += 1
-            #
-            #     print("COPY LS")
-            #     print(copy_ls)
-            #     print(ls)
-            #     flag = True
-            #
-            #     for i in range(len(copy_ls)):
-            #         ms = copy_ls[i]
-            #         self.network_ctrl_pipe.put(ms)
-            #         print("something")
+            message = yield self.network_ctrl_pipe.get()
+            print("TAG CORE2 " + str(self.network_ctrl_pipe.items))
+
+            if not flag:
+
+                ls = list(self.network_ctrl_pipe.items)
+                print("items")
+                print(self.network_ctrl_pipe.items)
+                # 2 A1, 1 A2, 1 A3
+                pos_n1 = 2
+                pos_n2 = 3
+                n1 = 800
+                n2 = 1000
+                copy_ls = list(self.network_ctrl_pipe.items)
+                for i in range(len(ls)):
+                    msg = ls[i]
+                    wait_time = self.env.now  # need to
+                    print("Wait time" + str(wait_time))
+                    if msg.msgType == 2 and wait_time > n1:
+                        copy_ls.insert(pos_n1, copy_ls[i])
+                        if pos_n1 < len(ls): pos_n1 += 1
+
+                    if msg.msgType == 3 and wait_time > n2:
+                        copy_ls.insert(pos_n2, copy_ls[i])
+                        if pos_n2 < len(ls): pos_n2 += 1
+
+                print("COPY LS")
+                print(copy_ls)
+                print(ls)
+                flag = True
+
+                for i in range(len(copy_ls)):
+                    ms = copy_ls[i]
+                    self.network_ctrl_pipe.put(ms)
+                    print("something")
 
             message = yield self.network_ctrl_pipe.get()
 
