@@ -14,16 +14,16 @@ from MyApplication import Application, Message
 
 from yafs.population import *
 from yafs.topology import Topology
+from simpleSelectionWithCloud import CacheBasedSolutionWithCloud
 from simpleSelection import FIFO
 import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
+from simpleSelectionWithCloud import RoundRobin_cloud
 from simplePlacement import CloudPlacement
-
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
 from yafs.application import fractional_selectivity
-
 
 RANDOM_SEED = 1
 
@@ -41,10 +41,10 @@ def create_application():
     """
     Messages among MODULES (AppEdge in iFogSim)
     """
-    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=3)
-    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=3)
+    m_a = Message("M.A", "Sensor", "ServiceA", instructions=6000, bytes=6000, broadcasting=False, msgType=1)
+    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=6000, bytes=6000, broadcasting=False, msgType=1)
+    m_b = Message("M.B", "Sensor", "ServiceA", instructions=2000, bytes=2000, broadcasting=False, msgType=3)
+    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=2000, bytes=2000, broadcasting=False, msgType=3)
 
     m_c = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
     m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=2)
@@ -91,6 +91,11 @@ def create_json_topology():
                   "WATT": 200.0}
     cloud_dev3 = {"id": 4, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
                   "WATT": 200.0}
+
+    cloud = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 100000, "RAM": 40000, "COST": 3,
+                  "WATT": 200.0}
+
+
     sensor_dev = {"id": 1, "model": "sensor-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
     actuator_dev = {"id": 2, "model": "actuator-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
 
@@ -103,9 +108,13 @@ def create_json_topology():
     link5 = {"s": 1, "d": 4, "BW": 1, "PR": 1}
     link6 = {"s": 4, "d": 2, "BW": 1, "PR": 1}
 
+    link7 = {"s": 1, "d": 5, "BW": 1, "PR": 1}
+    link8 = {"s": 5, "d": 2, "BW": 1, "PR": 1}
+
     topology_json["entity"].append(cloud_dev)
     topology_json["entity"].append(cloud_dev2)
     topology_json["entity"].append(cloud_dev3)
+    topology_json["entity"].append(cloud)
 
     topology_json["entity"].append(sensor_dev)
     topology_json["entity"].append(actuator_dev)
@@ -115,6 +124,9 @@ def create_json_topology():
     topology_json["link"].append(link4)
     topology_json["link"].append(link5)
     topology_json["link"].append(link6)
+
+    topology_json["link"].append(link7)
+    topology_json["link"].append(link8)
 
     return topology_json
 
@@ -184,7 +196,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = CacheBasedSolution()
+    selectorPath = RoundRobin_cloud()
 
     """
     SIMULATION ENGINE
