@@ -19,11 +19,9 @@ import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
 from simplePlacement import CloudPlacement
-
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
 from yafs.application import fractional_selectivity
-
 
 RANDOM_SEED = 1
 
@@ -41,16 +39,16 @@ def create_application():
     """
     Messages among MODULES (AppEdge in iFogSim)
     """
-    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=3)
-    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=3)
+    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=10)
+    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=10)
+    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=1)
+    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=11)
 
     m_c = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=2)
+    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=12)
 
-    m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=1)
-    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=1)
+    m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=2)
+    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=12)
 
     """
     Defining which messages will be dynamically generated # the generation is controlled by Population algorithm
@@ -91,6 +89,8 @@ def create_json_topology():
                   "WATT": 200.0}
     cloud_dev3 = {"id": 4, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
                   "WATT": 200.0}
+    cloud_node = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
+                  "WATT": 200.0}
     sensor_dev = {"id": 1, "model": "sensor-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
     actuator_dev = {"id": 2, "model": "actuator-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
 
@@ -102,6 +102,8 @@ def create_json_topology():
     link4 = {"s": 3, "d": 2, "BW": 1, "PR": 1}
     link5 = {"s": 1, "d": 4, "BW": 1, "PR": 1}
     link6 = {"s": 4, "d": 2, "BW": 1, "PR": 1}
+    link7 = {"s": 1, "d": 5, "BW": 1, "PR": 1}
+    link8 = {"s": 5, "d": 2, "BW": 1, "PR": 1}
 
     topology_json["entity"].append(cloud_dev)
     topology_json["entity"].append(cloud_dev2)
@@ -115,6 +117,9 @@ def create_json_topology():
     topology_json["link"].append(link4)
     topology_json["link"].append(link5)
     topology_json["link"].append(link6)
+
+    topology_json["link"].append(link7)
+    topology_json["link"].append(link8)
 
     return topology_json
 
@@ -170,7 +175,6 @@ def main(simulated_time):
 
     msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
     # sort(msgList) # remove this to make fcfs
-    sortQueue(msgList)
 
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
@@ -203,23 +207,6 @@ def main(simulated_time):
     s.print_debug_assignaments()
 
     # s.draw_allocated_topology() # for debugging
-
-def sortQueue(msgList):
-    # message list
-    if msgList is not None:
-
-        if len(msgList) != 0:
-
-            n = len(msgList)
-            for i in range(n - 1):
-
-                for j in range(0, n - i - 1):
-
-                    if (msgList[j]).msgType < (msgList[j + 1]).msgType:
-                        msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
-
-    # rules
-
 
 
 def search():

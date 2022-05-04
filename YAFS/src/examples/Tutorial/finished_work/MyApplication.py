@@ -206,6 +206,8 @@ class Application:
     """
     ADD SERVICE
     """
+    def get_messageList(self):
+        return self.messages
 
     def add_service_source(self, module_name, distribution=None, message=None, module_dest=[], p=[]):
         """
