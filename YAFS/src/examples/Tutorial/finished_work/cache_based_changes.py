@@ -19,11 +19,9 @@ import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
 from simplePlacement import CloudPlacement
-
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
 from yafs.application import fractional_selectivity
-
 
 RANDOM_SEED = 1
 
@@ -41,37 +39,31 @@ def create_application():
     """
     Messages among MODULES (AppEdge in iFogSim)
     """
-    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
-    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=3)
-    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=3)
 
-    m_c = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=2)
-
-    m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=1)
-    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=1)
-
-    """
-    Defining which messages will be dynamically generated # the generation is controlled by Population algorithm
-    """
-    a.add_source_messages(m_a)
-    a.add_source_messages(m_b)
-
-    a.add_source_messages(m_c)
-    a.add_source_messages(m_d)
-
-    """
-    MODULES/SERVICES: Definition of Generators and Consumers (AppEdges and TupleMappings in iFogSim)
-    """
-    # MODULE SERVICES
-    a.add_service_module("ServiceA", m_a, m_a2, fractional_selectivity, threshold=1.0)
-    a.add_service_module("ServiceA", m_b, m_b2, fractional_selectivity, threshold=1.0)
-    a.add_service_module("ServiceA", m_c, m_c2, fractional_selectivity, threshold=1.0)
-    a.add_service_module("ServiceA", m_d, m_d2, fractional_selectivity, threshold=1.0)
-    # a.add_service_module("ServiceB", m_b, m_b2, fractional_selectivity, threshold=1.0)
+    create_messages(a, 4, [])
 
     return a
+
+def create_messages(a, n, list_msg_names):
+    while n > 0:
+        val = 15
+        ran_val = random.randint(1,val)
+        A_ascii = 65
+        Z_ascii = 65 + 26
+        random_alpha = random.randint(A_ascii, Z_ascii)
+        alpha = chr(random_alpha)
+        msource_name = "M." + alpha*ran_val
+        mact_name = msource_name + "2"
+        ins = random.randint(100, 5000)
+        mtype = random.randint(1, 3)
+
+        list_msg_names.append(msource_name)
+
+        msource =  Message(msource_name, "Sensor", "ServiceA", instructions=ins, bytes=900, broadcasting=False, msgType=mtype)
+        mact = Message(mact_name, "SensorA", "Actuator", instructions=ins, bytes=900, broadcasting=False, msgType=mtype)
+        a.add_source_messages(msource)
+        a.add_service_module("ServiceA", msource, mact, fractional_selectivity, threshold=1.0)
+        n -= 1
 
 
 def create_json_topology():
@@ -167,8 +159,11 @@ def main(simulated_time):
     pop.set_sink_control({"model": "actuator-device", "number": 1, "module": app.get_sink_modules()})
 
     # In addition, a source includes a distribution function:
+    msgList = app.get_messageList()
 
-    msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
+    print(msgList)
+
+   # msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
     # sort(msgList) # remove this to make fcfs
     sortQueue(msgList)
 

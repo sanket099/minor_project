@@ -220,8 +220,48 @@ class Sim:
         """
         edges = self.topology.get_edges().keys()
         self.last_busy_time = {}  # dict(zip(edges, [0.0] * len(edges)))
+        # message = yield self.network_ctrl_pipe.get()
+
+        flag = False
 
         while not self.stop:
+
+            # message = yield self.network_ctrl_pipe.get()
+            # print("TAG CORE2 " + str(self.network_ctrl_pipe.items))
+            #
+            # if not flag:
+            #
+            #     ls = list(self.network_ctrl_pipe.items)
+            #     print("items")
+            #     print(self.network_ctrl_pipe.items)
+            #     # 2 A1, 1 A2, 1 A3
+            #     pos_n1 = 2
+            #     pos_n2 = 3
+            #     n1 = 800
+            #     n2 = 1000
+            #     copy_ls = list(self.network_ctrl_pipe.items)
+            #     for i in range(len(ls)):
+            #         msg = ls[i]
+            #         wait_time = self.env.now  # need to
+            #         print("Wait time" + str(wait_time))
+            #         if msg.msgType == 2 and wait_time > n1:
+            #             copy_ls.insert(pos_n1, copy_ls[i])
+            #             if pos_n1 < len(ls): pos_n1 += 1
+            #
+            #         if msg.msgType == 3 and wait_time > n2:
+            #             copy_ls.insert(pos_n2, copy_ls[i])
+            #             if pos_n2 < len(ls): pos_n2 += 1
+            #
+            #     print("COPY LS")
+            #     print(copy_ls)
+            #     print(ls)
+            #     flag = True
+            #
+            #     for i in range(len(copy_ls)):
+            #         ms = copy_ls[i]
+            #         self.network_ctrl_pipe.put(ms)
+            #         print("something")
+
             message = yield self.network_ctrl_pipe.get()
 
             # print "NetworkProcess --- Current time %d " %self.env.now
@@ -235,10 +275,11 @@ class Sim:
             if not message.path or message.path[-1] == message.dst_int or len(message.path) == 1:
 
                 pipe_id = "%s%s%i" % (
-                message.app_name, message.dst, message.idDES)  # app_name + module_name (dst) + idDES
+                    message.app_name, message.dst, message.idDES)  # app_name + module_name (dst) + idDES
                 # Timestamp reception message in the module
                 message.timestamp_rec = self.env.now
                 # The message is sent to the module.pipe
+                print("message going")
                 self.consumer_pipes[pipe_id].put(message)
             else:
                 # The message is sent at first time or it sent more times.
@@ -300,7 +341,7 @@ class Sim:
                     # This fact is produced when a node or edge the topology is changed or disappeared
                     self.logger.warning(
                         "The initial path assigned is unreachabled. Link: (%i,%i). Routing a new one. %i" % (
-                        link[0], link[1], self.env.now))
+                            link[0], link[1], self.env.now))
 
                     paths, DES_dst = self.selector_path[message.app_name].get_path_from_failure(self, message, link,
                                                                                                 self.alloc_DES,
@@ -320,6 +361,7 @@ class Sim:
                         message.idDES = DES_dst[0]
                         self.logger.debug("(\t New path given. Message is enrouting again.")
                         # print "\t",msg.path
+
                         self.network_ctrl_pipe.put(message)
 
     def __wait_message(self, msg, latency, shift_time):
@@ -329,6 +371,7 @@ class Sim:
         self.network_pump += 1
         yield self.env.timeout(latency + shift_time)
         self.network_pump -= 1
+        print("eait msg")
         self.network_ctrl_pipe.put(msg)
 
     def __get_id_process(self):
@@ -397,7 +440,7 @@ class Sim:
             yield self.env.timeout(nextTime)
             if self.des_process_running[idDES]:
                 self.logger.debug("(App:%s#DES:%i)\tModule - Generating Message: %s \t(T:%d)" % (
-                name_app, idDES, message.name, self.env.now))
+                    name_app, idDES, message.name, self.env.now))
 
                 msg = copy.copy(message)
                 msg.timestamp = self.env.now
@@ -478,8 +521,7 @@ class Sim:
             # print "-" * 50
 
             if (time_service + self.env.now - float(message.timestamp_rec)
-                                                 + float(message.timestamp_rec) - float(message.timestamp)) != 0:
-
+                + float(message.timestamp_rec) - float(message.timestamp)) != 0:
 
                 self.metrics.insert(
                     {"id": message.id, "type": type, "app": app, "module": module, "message": message.name,
@@ -489,13 +531,11 @@ class Sim:
                      "service": time_service, "time_in": self.env.now,
                      "time_out": time_service + self.env.now, "time_emit": float(message.timestamp),
                      "time_reception": float(message.timestamp_rec),
-                     "latency" : float(message.timestamp_rec) - float(message.timestamp),
-                     "time_response" : time_service + self.env.now - float(message.timestamp_rec),
-                     "time_wait" : self.env.now - float(message.timestamp_rec),
-                     "throughput" : message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
-                                                     + float(message.timestamp_rec) - float(message.timestamp))
-
-
+                     "latency": float(message.timestamp_rec) - float(message.timestamp),
+                     "time_response": time_service + self.env.now - float(message.timestamp_rec),
+                     "time_wait": self.env.now - float(message.timestamp_rec),
+                     "throughput": message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
+                                                    + float(message.timestamp_rec) - float(message.timestamp))
 
                      })
                 # self.timeIn = self.env.now
@@ -503,7 +543,7 @@ class Sim:
                 self.time_emit = float(message.timestamp)
 
                 return time_service
-            else :
+            else:
 
                 self.metrics.insert(
                     {"id": message.id, "type": type, "app": app, "module": module, "message": message.name,
@@ -627,7 +667,7 @@ class Sim:
                         if not doBefore:
                             self.logger.debug(
                                 "(App:%s#DES:%i#%s)\tModule - Recording the message:\t%s" % (
-                                app_name, ides, module, msg.name))
+                                    app_name, ides, module, msg.name))
                             type = self.NODE_METRIC
 
                             service_time = self.__update_node_metrics(app_name, module, msg, ides, type)
