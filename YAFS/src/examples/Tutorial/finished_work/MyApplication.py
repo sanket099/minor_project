@@ -56,6 +56,8 @@ class Message:
 
     def setMsgType(self, msgType):
         self.msgType = msgType
+    def setInstructions(self, instructions):
+        self.inst = instructions
 
     def setTimeIn(self, timeIn):
         self.timeIn = timeIn

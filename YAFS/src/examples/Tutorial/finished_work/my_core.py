@@ -672,7 +672,21 @@ class Sim:
 
                             service_time = self.__update_node_metrics(app_name, module, msg, ides, type)
 
-                            yield self.env.timeout(service_time)
+                            print("Service Time " + str(service_time))
+                            time_quantum = 1
+                            yield self.env.timeout(time_quantum)
+
+                            time_left = (service_time - time_quantum)
+                            if time_left < 0: time_left = 0
+                            fogIPT = msg.getIns() / service_time
+                            processed_instructions = fogIPT * time_quantum
+                            msg.setInstructions(msg.getIns() - processed_instructions)
+                            if(msg.getIns() - processed_instructions > 0):
+                                pipe_id = "%s%s%i" % (
+                                    app_name, msg.dst, ides)
+                                self.consumer_pipes[pipe_id].put(msg)
+
+
                             doBefore = True
 
                         """
