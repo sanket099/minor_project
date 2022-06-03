@@ -215,6 +215,18 @@ class Sim:
                     self.network_ctrl_pipe.put(msg)
         except KeyError:
             self.logger.warning("(#DES:%i)\t--- Unreacheable 4 DST:\t%s " % (idDES, message.name))
+    def __sort(self, msgList):
+            if msgList is not None:
+
+                if len(msgList) != 0:
+
+                    n = len(msgList)
+                    for i in range(n - 1):
+
+                        for j in range(0, n - i - 1):
+
+                            if (msgList[j]).inst > (msgList[j + 1]).inst:
+                                msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
 
     def __network_process(self):
         """
@@ -261,6 +273,7 @@ class Sim:
                 print(ls)
                 flag = True
 
+               # self.__sort(copy_ls) uncomment to apply sjf in dpto
 
                 for i in range(len(copy_ls)):
                     ms = copy_ls[i]

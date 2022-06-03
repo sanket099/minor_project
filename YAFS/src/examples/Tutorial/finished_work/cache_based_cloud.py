@@ -15,11 +15,14 @@ from MyApplication import Application, Message
 from yafs.population import *
 from yafs.topology import Topology
 from simpleSelectionWithCloud import CacheBasedSolutionWithCloud
+
+
 from simpleSelection import FIFO
 import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
 from simpleSelectionWithCloud import RoundRobinCloud
+from simpleSelectionWithCloud import FIFOCloud
 from simplePlacement import CloudPlacement
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
@@ -196,7 +199,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = CacheBasedSolutionWithCloud()
+    selectorPath = FIFOCloud()
 
     """
     SIMULATION ENGINE

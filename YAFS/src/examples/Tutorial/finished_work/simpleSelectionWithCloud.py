@@ -26,21 +26,21 @@ class FIFOCloud(Selection):
         bestDES = []
 
         for des in DES_dst:  ## In this case, there are only one deployment
-            if message.getIns() > 5000:  # message.msgType == 3:
+            if message.getIns() > 5000 and message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" :  # message.msgType == 3:
                 # find des of cloud
                 des_cloud = 8
-                dst_node = 5
+                dst_node_cloud = 5
 
-                print("\t\t Looking the path to id_node: %i" % dst_node)
+                print("\t\t Looking the path to id_node: %i" % dst_node_cloud)
 
-                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
                 print(path)
 
-                nodeIPT = sim.topology.get_node(dst_node)["IPT"]
+                nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
                 print("IPT OF CLOUD " + str(nodeIPT))
                 bestPath = [path]
                 bestDES = [des_cloud]
-                break
+                return bestPath, bestDES
 
             dst_node = alloc_DES[des]
             print("\t\t Looking the path to id_node: %i" % dst_node)
