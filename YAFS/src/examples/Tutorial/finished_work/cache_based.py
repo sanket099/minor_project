@@ -184,7 +184,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = CacheBasedSolution()
+    selectorPath = FIFO()
 
     """
     SIMULATION ENGINE

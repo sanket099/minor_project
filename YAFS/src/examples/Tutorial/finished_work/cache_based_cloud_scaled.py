@@ -2,7 +2,6 @@
     @author: isaac
 """
 import random
-import json
 import networkx as nx
 import argparse
 from pathlib import Path
@@ -14,17 +13,18 @@ from MyApplication import Application, Message
 
 from yafs.population import *
 from yafs.topology import Topology
-
+from simpleSelectionWithCloud import CacheBasedSolutionWithCloud
+from simpleSelectionWithCloud import CacheBasedSolutionWithCloudScaled
 from simpleSelection import FIFO
 import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
-from simpleSelection import RoundRobin_scaled
 from simpleSelection import CacheBasedSolution
-from simpleSelection import CacheBasedSolution_scaled
+from simpleSelectionWithCloud import RoundRobinCloud
 from simplePlacement import CloudPlacement
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
 from yafs.application import fractional_selectivity
+import json
 
 RANDOM_SEED = 1
 
@@ -255,7 +255,6 @@ def create_application():
     m_zzz = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=1)
     m_zzz2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=1)
 
-
     """
     Defining which messages will be dynamically generated # the generation is controlled by Population algorithm
     """
@@ -356,7 +355,6 @@ def create_application():
     a.add_source_messages(m_xxx)
     a.add_source_messages(m_yyy)
     a.add_source_messages(m_zzz)
-
 
     """
     MODULES/SERVICES: Definition of Generators and Consumers (AppEdges and TupleMappings in iFogSim)
@@ -463,8 +461,6 @@ def create_application():
     a.add_service_module("ServiceA", m_yyy, m_yyy2, fractional_selectivity, threshold=1.0)
     a.add_service_module("ServiceA", m_zzz, m_zzz2, fractional_selectivity, threshold=1.0)
 
-    # a.add_service_module("ServiceB", m_b, m_b2, fractional_selectivity, threshold=1.0)
-
     return a
 
 
@@ -479,12 +475,16 @@ def create_application():
 #     topology_json["entity"] = []
 #     topology_json["link"] = []
 #
-#     cloud_dev = {"id": 0, "model": "cloud", "mytag": "cloud", "IPT": 500 , "RAM": 40000, "COST": 3,
+#     cloud_dev = {"id": 0, "model": "cloud", "mytag": "cloud", "IPT": 500, "RAM": 40000, "COST": 3,
 #                  "WATT": 200.0}
 #     cloud_dev2 = {"id": 3, "model": "cloud", "mytag": "cloud", "IPT": 100, "RAM": 40000, "COST": 3,
 #                   "WATT": 200.0}
 #     cloud_dev3 = {"id": 4, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
 #                   "WATT": 200.0}
+#
+#     cloud = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 100000, "RAM": 40000, "COST": 3,
+#              "WATT": 200.0}
+#
 #     sensor_dev = {"id": 1, "model": "sensor-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
 #     actuator_dev = {"id": 2, "model": "actuator-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
 #
@@ -497,9 +497,13 @@ def create_application():
 #     link5 = {"s": 1, "d": 4, "BW": 1, "PR": 1}
 #     link6 = {"s": 4, "d": 2, "BW": 1, "PR": 1}
 #
+#     link7 = {"s": 1, "d": 5, "BW": 1, "PR": 1}
+#     link8 = {"s": 5, "d": 2, "BW": 1, "PR": 1}
+#
 #     topology_json["entity"].append(cloud_dev)
 #     topology_json["entity"].append(cloud_dev2)
 #     topology_json["entity"].append(cloud_dev3)
+#     topology_json["entity"].append(cloud)
 #
 #     topology_json["entity"].append(sensor_dev)
 #     topology_json["entity"].append(actuator_dev)
@@ -509,6 +513,9 @@ def create_application():
 #     topology_json["link"].append(link4)
 #     topology_json["link"].append(link5)
 #     topology_json["link"].append(link6)
+#
+#     topology_json["link"].append(link7)
+#     topology_json["link"].append(link8)
 #
 #     return topology_json
 
@@ -526,16 +533,12 @@ def main(simulated_time):
     TOPOLOGY from a json
     """
     t = Topology()
-    dataNetwork = json.load(open('my_network.json'))
+    dataNetwork = json.load(open('my_network_cloud.json'))
     t.load(dataNetwork)
-
-    # t = Topology()
-    # t_json = create_json_topology()
-    # t.load(t_json)
     nx.write_gexf(t.G,
-                  folder_results + "graph_cache_based_scaled")  # you can export the Graph in multiples format to view in tools likFFe Gephi, and so on.
+                  folder_results + "graph_cache_based")  # you can export the Graph in multiples format to view in tools likFFe Gephi, and so on.
     nx.draw(t.G, with_labels=True)
-    plt.savefig(folder_results + "graph_cache_based_scaled.png")
+    plt.savefig(folder_results + "graph_cache_based.png")
     """
     APPLICATION
     """
@@ -554,6 +557,8 @@ def main(simulated_time):
     # YAFS differentiates the adaptive sensors and their topological assignment.
     # In their case, the use a statical assignment.
     pop = Statical("Statical")
+    dDistribution = deterministic_distribution(name="Deterministic", time=100)
+    # pop = SimpleDynamicChanges(2, name="Dynamic", activation_dist=dDistribution)
     # For each type of sink modules we set a deployment on some type of devices
     # A control sink consists on:
     #  args:
@@ -563,7 +568,7 @@ def main(simulated_time):
     pop.set_sink_control({"model": "actuator-device", "number": 1, "module": app.get_sink_modules()})
 
     # In addition, a source includes a distribution function:
-    dDistribution = deterministic_distribution(name="Deterministic", time=100)
+
     msgList = [app.get_message("M.A"), app.get_message("M.B"),
                app.get_message("M.C"), app.get_message("M.D"),
                app.get_message("M.E"), app.get_message("M.F"),
@@ -578,12 +583,12 @@ def main(simulated_time):
                app.get_message("M.W"), app.get_message("M.X"),
                app.get_message("M.Y"), app.get_message("M.Z")
                ]
-    #sort(msgList) # remove this to make fcfs
+    # sort(msgList) # remove this to make fcfs
     sortQueue(msgList)
+
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
                              "distribution": dDistribution})  # 5.1}})
-
 
         # pop.set_src_control({"model": "sensor-device", "number": 1, "message": app.get_message("M.B"),
         #                      "distribution": dDistribution})  # 5.1}})
@@ -593,12 +598,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-
-
-
-    selectorPath = FIFO()
-
-
+    selectorPath = CacheBasedSolutionWithCloudScaled()
 
     """
     SIMULATION ENGINE
@@ -616,11 +616,8 @@ def main(simulated_time):
 
     s.print_debug_assignaments()
 
-
-
     # s.draw_allocated_topology() # for debugging
-def search():
-    pass
+
 
 def sortQueue(msgList):
     # message list
@@ -635,23 +632,23 @@ def sortQueue(msgList):
 
                     if (msgList[j]).msgType < (msgList[j + 1]).msgType:
                         msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
+
+    # rules
+
+
+def search():
+    pass
+
+
 def sort(msgList):
     if msgList is not None:
 
         if len(msgList) != 0:
 
             n = len(msgList)
-
-            # Traverse through all array elements
             for i in range(n - 1):
-                # range(n) also work but outer loop will repeat one time more than needed.
 
-                # Last i elements are already in place
                 for j in range(0, n - i - 1):
-
-                    # traverse the array from 0 to n-i-1
-                    # Swap if the element found is greater
-                    # than the next element
 
                     if (msgList[j]).inst > (msgList[j + 1]).inst:
                         msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
@@ -669,15 +666,13 @@ if __name__ == '__main__':
     print("\n--- %s seconds ---" % (time.time() - start_time))
 
     ## Finally, you can analyse the results:
-
     t = Topology()
-    dataNetwork = json.load(open('my_network.json'))
+    dataNetwork = json.load(open('my_network_cloud.json'))
     t.load(dataNetwork)
-
     print("-" * 20)
     print("Results:")
     print("-" * 20)
-    m = Stats(defaultPath="results/sim_trace", topology = t)  # Same name of the results
+    m = Stats(defaultPath="results/sim_trace")  # Same name of the results
     time_loops = [["M.A", "M.A2"], ["M.B", "M.B2"], ["M.C", "M.C2"], ["M.D", "M.D2"],
                   ["M.E", "M.E2"], ["M.F", "M.F2"], ["M.G", "M.G2"], ["M.H", "M.H2"],
                   ["M.I", "M.I2"], ["M.J", "M.J2"], ["M.K", "M.K2"], ["M.L", "M.L2"],
@@ -685,11 +680,10 @@ if __name__ == '__main__':
                   ["M.Q", "M.Q2"], ["M.R", "M.R2"], ["M.S", "M.S2"], ["M.T", "M.T2"],
                   ["M.U", "M.U2"], ["M.V", "M.V2"], ["M.W", "M.W2"], ["M.X", "M.X2"],
                   ["M.Y", "M.Y2"], ["M.Z", "M.Z2"]]
-    m.showResults2(1000,  time_loops=time_loops)
+    m.showResults2(1000, time_loops=time_loops)
 
     print("\t- Network saturation -")
 
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
-
 
     print("\t\t Energy " + str(m.get_watt(1000, t)))

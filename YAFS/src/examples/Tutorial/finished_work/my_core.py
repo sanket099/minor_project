@@ -51,6 +51,8 @@ class Sim:
     SINK_METRIC = "SINK_M"
     LINK_METRIC = "LINK"
 
+
+
     def __init__(self, topology, name_register='events_log.json', link_register='links_log.json', redis=None,
                  purge_register=True, logger=None, default_results_path=None):
 
@@ -163,6 +165,8 @@ class Sim:
         self.time_out = 0
         self.time_emit = 0
 
+
+
     # self.__send_message(app_name, message, idDES, self.SOURCE_METRIC)
     def __send_message(self, app_name, message, idDES, type):
         """
@@ -237,8 +241,8 @@ class Sim:
                 # 2 A1, 1 A2, 1 A3
                 pos_n1 = 2
                 pos_n2 = 3
-                n1 = 800
-                n2 = 1000
+                n1 = 300
+                n2 = 600
                 copy_ls = list(self.network_ctrl_pipe.items)
                 for i in range(len(ls)):
                     msg = ls[i]
@@ -257,12 +261,13 @@ class Sim:
                 print(ls)
                 flag = True
 
+
                 for i in range(len(copy_ls)):
                     ms = copy_ls[i]
                     self.network_ctrl_pipe.put(ms)
                     print("something")
 
-            message = yield self.network_ctrl_pipe.get()
+            # message = yield self.network_ctrl_pipe.get()
 
             # print "NetworkProcess --- Current time %d " %self.env.now
             # print "name " + message.name

@@ -624,145 +624,7 @@ class CacheBasedSolution(Selection):
 
         return bestPath, bestDES
 
-class MinMax(Selection):
 
-    def __init__(self):
-        self.tr = {}
-        self.times = {}
-        self.hm = {}
-        self.busy = 0
-
-
-    def get_path(self, sim, app_name, message, topology_src, alloc_DES, alloc_module, traffic, from_des):
-
-        node_src = topology_src
-        DES_dst = alloc_module[app_name][message.dst]
-
-        if len(self.tr) == 0:
-            print("TR IS 0")
-            for des in DES_dst:
-                self.tr[des] = 0
-
-        if len(self.times) == 0:
-            print("times IS 0")
-            for des in DES_dst:
-                self.times[des] = 101
-        if message.name not in self.hm.keys():
-            self.hm[message.name] = -1
-
-       # print("Message time in" + str(sim.timeIn))
-
-        print("traffic")
-        print("GET PATH")
-        print("\tNode _ src (id_topology): %i" % node_src)
-        print("\tRequest service: %s " % message.dst)
-        print("\tProcess serving that service: %s " % DES_dst)
-
-        print("Time Emit " + str(sim.env.now))
-
-        bestPath = []
-        bestDES = []
-        buffer = 99
-        if self.hm[message.name] != -1:
-            print("Message Name" + str(message.name))
-            des = self.hm[message.name]
-            dst_node = alloc_DES[des]
-
-            print("\t\t Looking the path to id_node: %i" % dst_node)
-
-            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-
-            bestPath = [path]
-            bestDES = [des]
-            return bestPath, bestDES
-
-       # if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
-        n = len(DES_dst)
-        for i in range(n - 1):
-            for j in range(0, n - i - 1):
-
-                dst_node1 = alloc_DES[DES_dst[j]]
-                dst_node2 = alloc_DES[DES_dst[j + 1]]
-
-                nodeIPT_j = sim.topology.get_node(dst_node1)["IPT"]
-                nodeIPT_j1 = sim.topology.get_node(dst_node2)["IPT"]
-                if nodeIPT_j < nodeIPT_j1:
-                    DES_dst[j], DES_dst[j + 1] = DES_dst[j + 1], DES_dst[j]
-
-        # time_emit = sim.env.now
-        # latency = float(message.timestamp_rec) - float(message.timestamp)
-
-
-
-        for des in DES_dst:
-            print("DES")
-            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
-                time_emit_present = sim.env.now
-                print("time_emit_pres" + str(time_emit_present) + "times" + str(self.times[des]))
-
-                if self.tr[des] == 1 and (time_emit_present - self.times[des] < buffer):
-                    continue
-                elif self.tr[des] == 1 and (time_emit_present - self.times[des] >= buffer) or self.busy == len(DES_dst):
-                    self.tr[des] = 0
-                    self.busy -= 1
-
-                dst_node = alloc_DES[des]
-
-                print("\t\t Looking the path to id_node: %i" % dst_node)
-
-                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-
-                bestPath = [path]
-
-                bestDES = [des]
-
-                nodeIPT = sim.topology.get_node(dst_node)["IPT"]
-
-                print(str(message.getIns()))
-
-                msgIns = message.getIns()
-
-                div = msgIns / nodeIPT
-
-                time_out = sim.time_out
-
-                print("time_out" + str(time_out))
-
-                time_emit = sim.time_emit
-
-                if div < 1:
-                    print("div is more than 1")
-
-                    self.tr[des] = 1
-
-                    self.times[des] = time_emit_present + div
-
-                break
-            else:
-                dst_node = alloc_DES[des]
-
-                print("Message2 " + str(node_src))
-
-                print("\t\t Looking the path to id_node: %i" % dst_node)
-
-
-                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                bestPath = [path]
-
-                bestDES = [des]
-                if message.broadcasting:
-                    bestPath.append(path)
-                    bestDES.append(des)
-                else:
-                    bestPath = [path]
-                    bestDES = [des]
-        self.hm[message.name] = bestDES[0]
-
-        if bestDES[0] in self.tr.keys() :
-            if self.tr[bestDES[0]] == 1:
-                self.busy += 1
-
-        return bestPath, bestDES
 
 
 
@@ -1186,4 +1048,145 @@ class CacheBasedSolution_onGoing(Selection):
                 self.busy += 1
 
         return bestPath, bestDES
+
+class CacheBasedSolutionCLOUD(Selection):
+
+    def __init__(self):
+        self.tr = {}
+        self.times = {}
+        self.hm = {}
+        self.busy = 0
+
+
+    def get_path(self, sim, app_name, message, topology_src, alloc_DES, alloc_module, traffic, from_des):
+
+        node_src = topology_src
+        DES_dst = alloc_module[app_name][message.dst]
+
+        if len(self.tr) == 0:
+            print("TR IS 0")
+            for des in DES_dst:
+                self.tr[des] = 0
+
+        if len(self.times) == 0:
+            print("times IS 0")
+            for des in DES_dst:
+                self.times[des] = 101
+        if message.name not in self.hm.keys():
+            self.hm[message.name] = -1
+
+       # print("Message time in" + str(sim.timeIn))
+
+        print("traffic")
+        print("GET PATH")
+        print("\tNode _ src (id_topology): %i" % node_src)
+        print("\tRequest service: %s " % message.dst)
+        print("\tProcess serving that service: %s " % DES_dst)
+
+        print("Time Emit " + str(sim.env.now))
+
+        bestPath = []
+        bestDES = []
+        buffer = 99
+        if self.hm[message.name] != -1:
+            print("Message Name" + str(message.name))
+            des = self.hm[message.name]
+            dst_node = alloc_DES[des]
+
+            print("\t\t Looking the path to id_node: %i" % dst_node)
+
+            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+
+            bestPath = [path]
+            bestDES = [des]
+            return bestPath, bestDES
+
+       # if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
+        n = len(DES_dst)
+        for i in range(n - 1):
+            for j in range(0, n - i - 1):
+
+                dst_node1 = alloc_DES[DES_dst[j]]
+                dst_node2 = alloc_DES[DES_dst[j + 1]]
+
+                nodeIPT_j = sim.topology.get_node(dst_node1)["IPT"]
+                nodeIPT_j1 = sim.topology.get_node(dst_node2)["IPT"]
+                if nodeIPT_j < nodeIPT_j1:
+                    DES_dst[j], DES_dst[j + 1] = DES_dst[j + 1], DES_dst[j]
+
+        # time_emit = sim.env.now
+        # latency = float(message.timestamp_rec) - float(message.timestamp)
+
+
+
+        for des in DES_dst:
+            print("DES")
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
+                time_emit_present = sim.env.now
+                print("time_emit_pres" + str(time_emit_present) + "times" + str(self.times[des]))
+
+                if self.tr[des] == 1 and (time_emit_present - self.times[des] < buffer):
+                    continue
+                elif self.tr[des] == 1 and (time_emit_present - self.times[des] >= buffer) or self.busy == len(DES_dst):
+                    self.tr[des] = 0
+                    self.busy -= 1
+
+                dst_node = alloc_DES[des]
+
+                print("\t\t Looking the path to id_node: %i" % dst_node)
+
+                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+
+                bestPath = [path]
+
+                bestDES = [des]
+
+                nodeIPT = sim.topology.get_node(dst_node)["IPT"]
+
+                print(str(message.getIns()))
+
+                msgIns = message.getIns()
+
+                div = msgIns / nodeIPT
+
+                time_out = sim.time_out
+
+                print("time_out" + str(time_out))
+
+                time_emit = sim.time_emit
+
+                if div > 1:
+                    print("div is more than 1")
+
+                    self.tr[des] = 1
+
+                    self.times[des] = time_emit_present + div
+
+                break
+            else:
+                dst_node = alloc_DES[des]
+
+                print("Message2 " + str(node_src))
+
+                print("\t\t Looking the path to id_node: %i" % dst_node)
+
+
+                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+                bestPath = [path]
+
+                bestDES = [des]
+                if message.broadcasting:
+                    bestPath.append(path)
+                    bestDES.append(des)
+                else:
+                    bestPath = [path]
+                    bestDES = [des]
+        self.hm[message.name] = bestDES[0]
+
+        if bestDES[0] in self.tr.keys() :
+            if self.tr[bestDES[0]] == 1:
+                self.busy += 1
+
+        return bestPath, bestDES
+
 
