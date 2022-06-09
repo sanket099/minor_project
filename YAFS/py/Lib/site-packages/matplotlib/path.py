@@ -9,13 +9,14 @@ such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
+import copy
 from functools import lru_cache
 from weakref import WeakValueDictionary
 
 import numpy as np
 
 import matplotlib as mpl
-from . import _path, cbook
+from . import _api, _path
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
@@ -28,11 +29,11 @@ class Path:
     The underlying storage is made up of two parallel numpy arrays:
 
     - *vertices*: an Nx2 float array of vertices
-    - *codes*: an N-length uint8 array of vertex types, or None
+    - *codes*: an N-length uint8 array of path codes, or None
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
-    provide three vertices as well as three codes ``CURVE3``.
+    provide three vertices and three ``CURVE4`` codes.
 
     The code types are:
 
@@ -102,16 +103,13 @@ class Path:
 
         Parameters
         ----------
-        vertices : array-like
-            The ``(N, 2)`` float array, masked array or sequence of pairs
-            representing the vertices of the path.
-
-            If *vertices* contains masked values, they will be converted
-            to NaNs which are then handled correctly by the Agg
-            PathIterator and other consumers of path data, such as
-            :meth:`iter_segments`.
+        vertices : (N, 2) array-like
+            The path vertices, as an array, masked array or sequence of pairs.
+            Masked values, if any, will be converted to NaNs, which are then
+            handled correctly by the Agg PathIterator and other consumers of
+            path data, such as :meth:`iter_segments`.
         codes : array-like or None, optional
-            n-length array integers representing the codes of the path.
+            N-length array of integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
             If None, *vertices* will be treated as a series of line segments.
         _interpolation_steps : int, optional
@@ -129,7 +127,7 @@ class Path:
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        cbook._check_shape((None, 2), vertices=vertices)
+        _api.check_shape((None, 2), vertices=vertices)
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
@@ -164,7 +162,7 @@ class Path:
     @classmethod
     def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None):
         """
-        Creates a Path instance without the expense of calling the constructor.
+        Create a Path instance without the expense of calling the constructor.
 
         Parameters
         ----------
@@ -216,7 +214,7 @@ class Path:
     @property
     def codes(self):
         """
-        The list of codes in the `Path` as a 1-D numpy array.  Each
+        The list of codes in the `Path` as a 1D numpy array.  Each
         code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
         or `CLOSEPOLY`.  For codes that correspond to more than one
         vertex (`CURVE3` and `CURVE4`), that code will be repeated so
@@ -262,15 +260,12 @@ class Path:
         """
         return self._readonly
 
-    def __copy__(self):
+    def copy(self):
         """
         Return a shallow copy of the `Path`, which will share the
         vertices and codes with the source `Path`.
         """
-        import copy
         return copy.copy(self)
-
-    copy = __copy__
 
     def __deepcopy__(self, memo=None):
         """
@@ -293,7 +288,7 @@ class Path:
         Make a compound path object to draw a number
         of polygons with equal numbers of sides XY is a (numpolys x
         numsides x 2) numpy array of vertices.  Return object is a
-        :class:`Path`
+        :class:`Path`.
 
         .. plot:: gallery/misc/histogram_path.py
 
@@ -319,8 +314,8 @@ class Path:
     @classmethod
     def make_compound_path(cls, *args):
         """
-        Make a compound path from a list of Path objects. Blindly removes all
-        Path.STOP control points.
+        Make a compound path from a list of `Path` objects. Blindly removes
+        all `Path.STOP` control points.
         """
         # Handle an empty list in args (i.e. no args).
         if not args:
@@ -461,9 +456,8 @@ class Path:
                 raise ValueError("Invalid Path.code_type: " + str(code))
             prev_vert = verts[-2:]
 
-    @cbook._delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
-                quantize=False, simplify=False, curves=False,
+                *, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
         """
         Return a new Path with vertices and codes cleaned according to the
@@ -496,7 +490,11 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given point.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -517,6 +515,17 @@ class Path:
         Returns
         -------
         bool
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -531,7 +540,11 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Return whether the (closed) path contains the given point.
+        Return whether the area enclosed by the path contains the given points.
+
+        The path is always treated as closed; i.e. if the last code is not
+        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        vertex is assumed.
 
         Parameters
         ----------
@@ -541,7 +554,7 @@ class Path:
             If not ``None``, *points* will be compared to ``self`` transformed
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *points*.
-        radius : float, default: 0.
+        radius : float, default: 0
             Add an additional margin on the path in coordinates of *points*.
             The path is extended tangentially by *radius/2*; i.e. if you would
             draw the path with a linewidth of *radius*, all points on the line
@@ -552,6 +565,17 @@ class Path:
         Returns
         -------
         length-N bool array
+
+        Notes
+        -----
+        The current algorithm has some limitations:
+
+        - The result is undefined for points exactly at the boundary
+          (i.e. at the path shifted by *radius/2*).
+        - The result is undefined if there is no enclosed area, i.e. all
+          vertices are on a straight line.
+        - If bounding lines start to cross each other due to *radius* shift,
+          the result is not guaranteed to be correct.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -591,7 +615,12 @@ class Path:
         if self.codes is None:
             xys = self.vertices
         elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
-            xys = self.vertices[self.codes != Path.CLOSEPOLY]
+            # Optimization for the straight line case.
+            # Instead of iterating through each curve, consider
+            # each line segment's end-points
+            # (recall that STOP and CLOSEPOLY vertices are ignored)
+            xys = self.vertices[np.isin(self.codes,
+                                        [Path.MOVETO, Path.LINETO])]
         else:
             xys = []
             for curve, code in self.iter_bezier(**kwargs):
@@ -888,8 +917,8 @@ class Path:
     @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
-        Return the unit circle arc from angles *theta1* to *theta2* (in
-        degrees).
+        Return a `Path` for the unit circle arc from angles *theta1* to
+        *theta2* (in degrees).
 
         *theta2* is unwrapped to produce the shortest arc within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
@@ -967,8 +996,8 @@ class Path:
     @classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
-        Return the unit circle wedge from angles *theta1* to *theta2* (in
-        degrees).
+        Return a `Path` for the unit circle wedge from angles *theta1* to
+        *theta2* (in degrees).
 
         *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
@@ -1013,18 +1042,18 @@ class Path:
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
     r"""
-    Given a sequence of `Path`\s, `~.Transform`\s objects, and offsets, as
-    found in a `~.PathCollection`, returns the bounding box that encapsulates
+    Given a sequence of `Path`\s, `.Transform`\s objects, and offsets, as
+    found in a `.PathCollection`, returns the bounding box that encapsulates
     all of them.
 
     Parameters
     ----------
-    master_transform : `~.Transform`
+    master_transform : `.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transforms : list of `~.Affine2D`
+    transforms : list of `.Affine2D`
     offsets : (N, 2) array-like
-    offset_transform : `~.Affine2D`
+    offset_transform : `.Affine2D`
         Transform applied to the offsets before offsetting the path.
 
     Notes
@@ -1039,6 +1068,7 @@ def get_path_collection_extents(
     from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(
+    extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
-        offsets, offset_transform))
+        offsets, offset_transform)
+    return Bbox.from_extents(*extents, minpos=minpos)

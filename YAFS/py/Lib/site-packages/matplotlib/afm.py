@@ -1,7 +1,7 @@
 """
 A python interface to Adobe Font Metrics Files.
 
-Although a number of other python implementations exist, and may be more
+Although a number of other Python implementations exist, and may be more
 complete than this, it was decided not to go with them because they were
 either:
 
@@ -312,7 +312,7 @@ def _parse_composites(fh):
             return composites
         vals = line.split(b';')
         cc = vals[0].split()
-        name, numParts = cc[1], _to_int(cc[2])
+        name, _num_parts = cc[1], _to_int(cc[2])
         pccParts = []
         for s in vals[1:-1]:
             pcc = s.split()
@@ -468,6 +468,10 @@ class AFM:
     def get_fontname(self):
         """Return the font name, e.g., 'Times-Roman'."""
         return self._header[b'FontName']
+
+    @property
+    def postscript_name(self):  # For consistency with FT2Font.
+        return self.get_fontname()
 
     def get_fullname(self):
         """Return the font full name, e.g., 'Times-Roman'."""

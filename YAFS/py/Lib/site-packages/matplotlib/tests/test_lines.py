@@ -4,6 +4,7 @@ Tests specific to the lines module.
 
 import itertools
 import timeit
+from types import SimpleNamespace
 
 from cycler import cycler
 import numpy as np
@@ -15,6 +16,7 @@ import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -47,7 +49,7 @@ def test_invisible_Line_rendering():
 
     # Create a plot figure:
     fig = plt.figure()
-    ax = plt.subplot(111)
+    ax = plt.subplot()
 
     # Create a "big" Line instance:
     l = mlines.Line2D(x, y)
@@ -73,8 +75,7 @@ def test_invisible_Line_rendering():
 
 
 def test_set_line_coll_dash():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     np.random.seed(0)
     # Testing setting linestyles for line collections.
     # This should not produce an error.
@@ -83,15 +84,13 @@ def test_set_line_coll_dash():
 
 @image_comparison(['line_dashes'], remove_text=True)
 def test_line_dashes():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
 
 def test_line_colors():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     ax.plot(range(10), color='none')
     ax.plot(range(10), color='r')
     ax.plot(range(10), color='.3')
@@ -100,9 +99,14 @@ def test_line_colors():
     fig.canvas.draw()
 
 
+def test_valid_colors():
+    line = mlines.Line2D([], [])
+    with pytest.raises(ValueError):
+        line.set_color("foobar")
+
+
 def test_linestyle_variants():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     for ls in ["-", "solid", "--", "dashed",
                "-.", "dashdot", ":", "dotted"]:
         ax.plot(range(10), linestyle=ls)
@@ -128,6 +132,17 @@ def test_drawstyle_variants():
         ax.set(xlim=(0, 2), ylim=(0, 2))
 
 
+@check_figures_equal(extensions=('png',))
+def test_no_subslice_with_transform(fig_ref, fig_test):
+    ax = fig_ref.add_subplot()
+    x = np.arange(2000)
+    ax.plot(x + 2000, x)
+
+    ax = fig_test.add_subplot()
+    t = mtransforms.Affine2D().translate(2000.0, 0.0)
+    ax.plot(x, x, transform=t+ax.transData)
+
+
 def test_valid_drawstyles():
     line = mlines.Line2D([], [])
     with pytest.raises(ValueError):
@@ -149,8 +164,7 @@ def test_set_drawstyle():
 
 @image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
 def test_set_line_coll_dash_image():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     np.random.seed(0)
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
@@ -215,28 +229,57 @@ def test_step_markers(fig_test, fig_ref):
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
 
 
+@pytest.mark.parametrize("parent", ["figure", "axes"])
 @check_figures_equal(extensions=('png',))
-def test_markevery(fig_test, fig_ref):
+def test_markevery(fig_test, fig_ref, parent):
     np.random.seed(42)
-    t = np.linspace(0, 3, 14)
-    y = np.random.rand(len(t))
+    x = np.linspace(0, 1, 14)
+    y = np.random.rand(len(x))
 
-    casesA = [None, 4, (2, 5), [1, 5, 11],
-              [0, -1], slice(5, 10, 2), 0.3, (0.3, 0.4),
-              np.arange(len(t))[y > 0.5]]
-    casesB = ["11111111111111", "10001000100010", "00100001000010",
-              "01000100000100", "10000000000001", "00000101010000",
-              "11011011011110", "01010011011101", "01110001110110"]
+    cases_test = [None, 4, (2, 5), [1, 5, 11],
+                  [0, -1], slice(5, 10, 2),
+                  np.arange(len(x))[y > 0.5],
+                  0.3, (0.3, 0.4)]
+    cases_ref = ["11111111111111", "10001000100010", "00100001000010",
+                 "01000100000100", "10000000000001", "00000101010000",
+                 "01110001110110", "11011011011110", "01010011011101"]
 
-    axsA = fig_ref.subplots(3, 3)
-    axsB = fig_test.subplots(3, 3)
+    if parent == "figure":
+        # float markevery ("relative to axes size") is not supported.
+        cases_test = cases_test[:-2]
+        cases_ref = cases_ref[:-2]
 
-    for ax, case in zip(axsA.flat, casesA):
-        ax.plot(t, y, "-gD", markevery=case)
+        def add_test(x, y, *, markevery):
+            fig_test.add_artist(
+                mlines.Line2D(x, y, marker="o", markevery=markevery))
 
-    for ax, case in zip(axsB.flat, casesB):
+        def add_ref(x, y, *, markevery):
+            fig_ref.add_artist(
+                mlines.Line2D(x, y, marker="o", markevery=markevery))
+
+    elif parent == "axes":
+        axs_test = iter(fig_test.subplots(3, 3).flat)
+        axs_ref = iter(fig_ref.subplots(3, 3).flat)
+
+        def add_test(x, y, *, markevery):
+            next(axs_test).plot(x, y, "-gD", markevery=markevery)
+
+        def add_ref(x, y, *, markevery):
+            next(axs_ref).plot(x, y, "-gD", markevery=markevery)
+
+    for case in cases_test:
+        add_test(x, y, markevery=case)
+
+    for case in cases_ref:
         me = np.array(list(case)).astype(int).astype(bool)
-        ax.plot(t, y, "-gD", markevery=me)
+        add_ref(x, y, markevery=me)
+
+
+def test_markevery_figure_line_unsupported_relsize():
+    fig = plt.figure()
+    fig.add_artist(mlines.Line2D([0, 1], [0, 1], marker="o", markevery=.5))
+    with pytest.raises(ValueError):
+        fig.canvas.draw()
 
 
 def test_marker_as_markerstyle():
@@ -263,3 +306,29 @@ def test_marker_as_markerstyle():
 def test_odd_dashes(fig_test, fig_ref):
     fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
     fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
+
+
+def test_picking():
+    fig, ax = plt.subplots()
+    mouse_event = SimpleNamespace(x=fig.bbox.width // 2,
+                                  y=fig.bbox.height // 2 + 15)
+
+    # Default pickradius is 5, so event should not pick this line.
+    l0, = ax.plot([0, 1], [0, 1], picker=True)
+    found, indices = l0.contains(mouse_event)
+    assert not found
+
+    # But with a larger pickradius, this should be picked.
+    l1, = ax.plot([0, 1], [0, 1], picker=True, pickradius=20)
+    found, indices = l1.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    # And if we modify the pickradius after creation, it should work as well.
+    l2, = ax.plot([0, 1], [0, 1], picker=True)
+    found, indices = l2.contains(mouse_event)
+    assert not found
+    l2.set_pickradius(20)
+    found, indices = l2.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])

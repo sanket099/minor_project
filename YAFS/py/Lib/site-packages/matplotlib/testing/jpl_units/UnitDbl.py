@@ -1,8 +1,9 @@
 """UnitDbl module."""
 
+import functools
 import operator
 
-from matplotlib import cbook
+from matplotlib import _api
 
 
 class UnitDbl:
@@ -48,7 +49,7 @@ class UnitDbl:
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         self._value = float(value * data[0])
         self._units = data[1]
 
@@ -68,7 +69,7 @@ class UnitDbl:
         """
         if self._units == units:
             return self._value
-        data = cbook._check_getitem(self.allowed, units=units)
+        data = _api.check_getitem(self.allowed, units=units)
         if self._units != data[1]:
             raise ValueError(f"Error trying to convert to different units.\n"
                              f"    Invalid conversion requested.\n"
@@ -88,99 +89,32 @@ class UnitDbl:
         """Return the truth value of a UnitDbl."""
         return bool(self._value)
 
-    def __eq__(self, rhs):
-        return self._cmp(rhs, operator.eq)
-
-    def __ne__(self, rhs):
-        return self._cmp(rhs, operator.ne)
-
-    def __lt__(self, rhs):
-        return self._cmp(rhs, operator.lt)
-
-    def __le__(self, rhs):
-        return self._cmp(rhs, operator.le)
-
-    def __gt__(self, rhs):
-        return self._cmp(rhs, operator.gt)
-
-    def __ge__(self, rhs):
-        return self._cmp(rhs, operator.ge)
-
-    def _cmp(self, rhs, op):
-        """
-        Compare two UnitDbl's.
-
-        = ERROR CONDITIONS
-        - If the input rhs units are not the same as our units,
-          an error is thrown.
-
-        = INPUT VARIABLES
-        - rhs     The UnitDbl to compare against.
-        - op      The function to do the comparison
-
-        = RETURN VALUE
-        - Returns op(self, rhs)
-        """
+    def _cmp(self, op, rhs):
+        """Check that *self* and *rhs* share units; compare them using *op*."""
         self.checkSameUnits(rhs, "compare")
         return op(self._value, rhs._value)
 
-    def __add__(self, rhs):
-        """
-        Add two UnitDbl's.
+    __eq__ = functools.partialmethod(_cmp, operator.eq)
+    __ne__ = functools.partialmethod(_cmp, operator.ne)
+    __lt__ = functools.partialmethod(_cmp, operator.lt)
+    __le__ = functools.partialmethod(_cmp, operator.le)
+    __gt__ = functools.partialmethod(_cmp, operator.gt)
+    __ge__ = functools.partialmethod(_cmp, operator.ge)
 
-        = ERROR CONDITIONS
-        - If the input rhs units are not the same as our units,
-          an error is thrown.
+    def _binop_unit_unit(self, op, rhs):
+        """Check that *self* and *rhs* share units; combine them using *op*."""
+        self.checkSameUnits(rhs, op.__name__)
+        return UnitDbl(op(self._value, rhs._value), self._units)
 
-        = INPUT VARIABLES
-        - rhs     The UnitDbl to add.
+    __add__ = functools.partialmethod(_binop_unit_unit, operator.add)
+    __sub__ = functools.partialmethod(_binop_unit_unit, operator.sub)
 
-        = RETURN VALUE
-        - Returns the sum of ourselves and the input UnitDbl.
-        """
-        self.checkSameUnits(rhs, "add")
-        return UnitDbl(self._value + rhs._value, self._units)
+    def _binop_unit_scalar(self, op, scalar):
+        """Combine *self* and *scalar* using *op*."""
+        return UnitDbl(op(self._value, scalar), self._units)
 
-    def __sub__(self, rhs):
-        """
-        Subtract two UnitDbl's.
-
-        = ERROR CONDITIONS
-        - If the input rhs units are not the same as our units,
-          an error is thrown.
-
-        = INPUT VARIABLES
-        - rhs     The UnitDbl to subtract.
-
-        = RETURN VALUE
-        - Returns the difference of ourselves and the input UnitDbl.
-        """
-        self.checkSameUnits(rhs, "subtract")
-        return UnitDbl(self._value - rhs._value, self._units)
-
-    def __mul__(self, rhs):
-        """
-        Scale a UnitDbl by a value.
-
-        = INPUT VARIABLES
-        - rhs     The scalar to multiply by.
-
-        = RETURN VALUE
-        - Returns the scaled UnitDbl.
-        """
-        return UnitDbl(self._value * rhs, self._units)
-
-    def __rmul__(self, lhs):
-        """
-        Scale a UnitDbl by a value.
-
-        = INPUT VARIABLES
-        - lhs     The scalar to multiply by.
-
-        = RETURN VALUE
-        - Returns the scaled UnitDbl.
-        """
-        return UnitDbl(self._value * lhs, self._units)
+    __mul__ = functools.partialmethod(_binop_unit_scalar, operator.mul)
+    __rmul__ = functools.partialmethod(_binop_unit_scalar, operator.mul)
 
     def __str__(self):
         """Print the UnitDbl."""
@@ -227,22 +161,6 @@ class UnitDbl:
             i += 1
 
         return elems
-
-    @cbook.deprecated("3.2")
-    def checkUnits(self, units):
-        """
-        Check to see if some units are valid.
-
-        = ERROR CONDITIONS
-        - If the input units are not in the allowed list, an error is thrown.
-
-        = INPUT VARIABLES
-        - units     The string name of the units to check.
-        """
-        if units not in self.allowed:
-            raise ValueError("Input units '%s' are not one of the supported "
-                             "types of %s" % (
-                                units, list(self.allowed.keys())))
 
     def checkSameUnits(self, rhs, func):
         """

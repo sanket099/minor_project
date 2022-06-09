@@ -273,7 +273,30 @@ class Sim:
                 print(ls)
                 flag = True
 
+                # oneList = []
+                # twoList = []
+                # thirdList = []
+                #
+                # for i in range(len(copy_ls)):
+                #     msg = copy_ls[i]
+                #     if msg.msgType == 1:
+                #         oneList.append(msg)
+                #     elif msg.msgType == 2:
+                #         twoList.append(msg)
+                #     elif msg.msgType == 3:
+                #         thirdList.append(msg)
                # self.__sort(copy_ls) uncomment to apply sjf in dpto
+
+                # self.__sort(oneList)
+                # self.__sort(twoList)
+                # self.__sort(thirdList)
+                #
+                # for i in range(len(oneList)):
+                #     copy_ls.append(oneList[i])
+                # for i in range(len(twoList)):
+                #     copy_ls.append(twoList[i])
+                # for i in range(len(thirdList)):
+                #     copy_ls.append(thirdList[i])
 
                 for i in range(len(copy_ls)):
                     ms = copy_ls[i]

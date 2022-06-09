@@ -63,7 +63,9 @@ mpl.figure = function (figure_id, websocket, ondownload, parent_element) {
         fig.send_message('supports_binary', { value: fig.supports_binary });
         fig.send_message('send_image_mode', {});
         if (fig.ratio !== 1) {
-            fig.send_message('set_dpi_ratio', { dpi_ratio: fig.ratio });
+            fig.send_message('set_device_pixel_ratio', {
+                device_pixel_ratio: fig.ratio,
+            });
         }
         fig.send_message('refresh', {});
     };
@@ -244,6 +246,10 @@ mpl.figure.prototype._init_canvas = function () {
     rubberband_canvas.addEventListener(
         'mouseup',
         on_mouse_event_closure('button_release')
+    );
+    rubberband_canvas.addEventListener(
+        'dblclick',
+        on_mouse_event_closure('dblclick')
     );
     // Throttle sequential mouse events to 1 every 20ms.
     rubberband_canvas.addEventListener(
@@ -438,22 +444,7 @@ mpl.figure.prototype.handle_figure_label = function (fig, msg) {
 };
 
 mpl.figure.prototype.handle_cursor = function (fig, msg) {
-    var cursor = msg['cursor'];
-    switch (cursor) {
-        case 0:
-            cursor = 'pointer';
-            break;
-        case 1:
-            cursor = 'default';
-            break;
-        case 2:
-            cursor = 'crosshair';
-            break;
-        case 3:
-            cursor = 'move';
-            break;
-    }
-    fig.rubberband_canvas.style.cursor = cursor;
+    fig.rubberband_canvas.style.cursor = msg['cursor'];
 };
 
 mpl.figure.prototype.handle_message = function (fig, msg) {
@@ -502,11 +493,14 @@ mpl.figure.prototype.updated_canvas_event = function () {
 mpl.figure.prototype._make_on_message_function = function (fig) {
     return function socket_on_message(evt) {
         if (evt.data instanceof Blob) {
-            /* FIXME: We get "Resource interpreted as Image but
-             * transferred with MIME type text/plain:" errors on
-             * Chrome.  But how to set the MIME type?  It doesn't seem
-             * to be part of the websocket stream */
-            evt.data.type = 'image/png';
+            var img = evt.data;
+            if (img.type !== 'image/png') {
+                /* FIXME: We get "Resource interpreted as Image but
+                 * transferred with MIME type text/plain:" errors on
+                 * Chrome.  But how to set the MIME type?  It doesn't seem
+                 * to be part of the websocket stream */
+                img.type = 'image/png';
+            }
 
             /* Free the memory for the previous frames */
             if (fig.imageObj.src) {
@@ -516,7 +510,7 @@ mpl.figure.prototype._make_on_message_function = function (fig) {
             }
 
             fig.imageObj.src = (window.URL || window.webkitURL).createObjectURL(
-                evt.data
+                img
             );
             fig.updated_canvas_event();
             fig.waiting = false;
@@ -562,7 +556,7 @@ mpl.figure.prototype._make_on_message_function = function (fig) {
     };
 };
 
-// from http://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
+// from https://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
 mpl.findpos = function (e) {
     //this section is from http://www.quirksmode.org/js/events_properties.html
     var targ;
@@ -590,7 +584,7 @@ mpl.findpos = function (e) {
 /*
  * return a copy of an object with only non-object keys
  * we need this to avoid circular references
- * http://stackoverflow.com/a/24161582/3208463
+ * https://stackoverflow.com/a/24161582/3208463
  */
 function simpleKeys(original) {
     return Object.keys(original).reduce(function (obj, key) {
@@ -635,10 +629,10 @@ mpl.figure.prototype._key_event_extra = function (_event, _name) {
 mpl.figure.prototype.key_event = function (event, name) {
     // Prevent repeat events
     if (name === 'key_press') {
-        if (event.which === this._key) {
+        if (event.key === this._key) {
             return;
         } else {
-            this._key = event.which;
+            this._key = event.key;
         }
     }
     if (name === 'key_release') {
@@ -646,18 +640,17 @@ mpl.figure.prototype.key_event = function (event, name) {
     }
 
     var value = '';
-    if (event.ctrlKey && event.which !== 17) {
+    if (event.ctrlKey && event.key !== 'Control') {
         value += 'ctrl+';
     }
-    if (event.altKey && event.which !== 18) {
+    else if (event.altKey && event.key !== 'Alt') {
         value += 'alt+';
     }
-    if (event.shiftKey && event.which !== 16) {
+    else if (event.shiftKey && event.key !== 'Shift') {
         value += 'shift+';
     }
 
-    value += 'k';
-    value += event.which.toString();
+    value += 'k' + event.key;
 
     this._key_event_extra(event, name);
 

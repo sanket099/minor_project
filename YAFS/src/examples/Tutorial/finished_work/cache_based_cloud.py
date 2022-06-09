@@ -95,8 +95,8 @@ def create_json_topology():
     cloud_dev3 = {"id": 4, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
                   "WATT": 200.0}
 
-    cloud = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 100000, "RAM": 40000, "COST": 3,
-                  "WATT": 200.0}
+    cloud = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 100000, "RAM": 4000000, "COST": 10000,
+                  "WATT": 20000.0}
 
 
     sensor_dev = {"id": 1, "model": "sensor-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
@@ -111,8 +111,8 @@ def create_json_topology():
     link5 = {"s": 1, "d": 4, "BW": 1, "PR": 1}
     link6 = {"s": 4, "d": 2, "BW": 1, "PR": 1}
 
-    link7 = {"s": 1, "d": 5, "BW": 1, "PR": 1}
-    link8 = {"s": 5, "d": 2, "BW": 1, "PR": 1}
+    link7 = {"s": 1, "d": 5, "BW": 1, "PR": 10}
+    link8 = {"s": 5, "d": 2, "BW": 1, "PR": 10}
 
     topology_json["entity"].append(cloud_dev)
     topology_json["entity"].append(cloud_dev2)
@@ -184,7 +184,7 @@ def main(simulated_time):
     # In addition, a source includes a distribution function:
 
     msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
-    # sort(msgList) # remove this to make fcfs
+    #sort(msgList) # remove this to make fcfs
     sortQueue(msgList)
 
     for i in msgList:

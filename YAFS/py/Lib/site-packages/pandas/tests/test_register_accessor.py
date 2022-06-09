@@ -3,13 +3,30 @@ import contextlib
 import pytest
 
 import pandas as pd
-import pandas.util.testing as tm
+import pandas._testing as tm
+from pandas.core import accessor
+
+
+def test_dirname_mixin():
+    # GH37173
+
+    class X(accessor.DirNamesMixin):
+        x = 1
+        y: int
+
+        def __init__(self):
+            self.z = 3
+
+    result = [attr_name for attr_name in dir(X()) if not attr_name.startswith("_")]
+
+    assert result == ["x", "z"]
 
 
 @contextlib.contextmanager
 def ensure_removed(obj, attr):
     """Ensure that an attribute added to 'obj' during the test is
-    removed when we're done"""
+    removed when we're done
+    """
     try:
         yield
     finally:
@@ -45,7 +62,8 @@ def test_register(obj, registrar):
     with ensure_removed(obj, "mine"):
         before = set(dir(obj))
         registrar("mine")(MyAccessor)
-        assert obj([]).mine.prop == "item"
+        o = obj([]) if obj is not pd.Series else obj([], dtype=object)
+        assert o.mine.prop == "item"
         after = set(dir(obj))
         assert (before ^ after) == {"mine"}
         assert "mine" in obj._accessors
@@ -88,4 +106,4 @@ def test_raises_attribute_error():
                 raise AttributeError("whoops")
 
         with pytest.raises(AttributeError, match="whoops"):
-            pd.Series([]).bad
+            pd.Series([], dtype=object).bad

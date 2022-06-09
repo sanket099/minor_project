@@ -1,14 +1,21 @@
 import re
 
+from matplotlib.testing import _check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
+from matplotlib.backend_tools import (ToolZoom, ToolPan, RubberbandBase,
+                                      ToolViewsPositions, _views_positions)
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
-import os
+
 import numpy as np
 import pytest
+
+needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
+                                   reason='xelatex + pgf is required')
 
 
 def test_uses_per_path():
@@ -52,12 +59,12 @@ def test_uses_per_path():
     check(id, paths, tforms_matrices, offsets, facecolors[0:1], edgecolors)
 
 
-def test_get_default_filename(tmpdir):
-    plt.rcParams['savefig.directory'] = str(tmpdir)
-    fig = plt.figure()
-    canvas = FigureCanvasBase(fig)
-    filename = canvas.get_default_filename()
-    assert filename == 'image.png'
+def test_canvas_ctor():
+    assert isinstance(FigureCanvasBase().figure, Figure)
+
+
+def test_get_default_filename():
+    assert plt.figure().canvas.get_default_filename() == 'image.png'
 
 
 def test_canvas_change():
@@ -73,7 +80,7 @@ def test_canvas_change():
 def test_non_gui_warning(monkeypatch):
     plt.subplots()
 
-    monkeypatch.setitem(os.environ, "DISPLAY", ":999")
+    monkeypatch.setenv("DISPLAY", ":999")
 
     with pytest.warns(UserWarning) as rec:
         plt.show()
@@ -111,6 +118,19 @@ def test_location_event_position(x, y):
             ax.format_coord(x, y))
         ax.fmt_xdata = ax.fmt_ydata = lambda x: "foo"
         assert re.match("x=foo +y=foo", ax.format_coord(x, y))
+
+
+def test_pick():
+    fig = plt.figure()
+    fig.text(.5, .5, "hello", ha="center", va="center", picker=True)
+    fig.canvas.draw()
+    picks = []
+    fig.canvas.mpl_connect("pick_event", lambda event: picks.append(event))
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *fig.transFigure.transform((.5, .5)),
+        MouseButton.LEFT)
+    fig.canvas.callbacks.process(start_event.name, start_event)
+    assert len(picks) == 1
 
 
 def test_interactive_zoom():
@@ -157,3 +177,123 @@ def test_interactive_zoom():
 
     tb.zoom()
     assert ax.get_navigate_mode() is None
+
+    assert not ax.get_autoscalex_on() and not ax.get_autoscaley_on()
+
+
+@pytest.mark.parametrize("plot_func", ["imshow", "contourf"])
+@pytest.mark.parametrize("orientation", ["vertical", "horizontal"])
+@pytest.mark.parametrize("tool,button,expected",
+                         [("zoom", MouseButton.LEFT, (4, 6)),  # zoom in
+                          ("zoom", MouseButton.RIGHT, (-20, 30)),  # zoom out
+                          ("pan", MouseButton.LEFT, (-2, 8))])
+def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
+    fig, ax = plt.subplots()
+    data = np.arange(12).reshape((4, 3))
+    vmin0, vmax0 = 0, 10
+    coll = getattr(ax, plot_func)(data, vmin=vmin0, vmax=vmax0)
+
+    cb = fig.colorbar(coll, ax=ax, orientation=orientation)
+    if plot_func == "contourf":
+        # Just determine we can't navigate and exit out of the test
+        assert not cb.ax.get_navigate()
+        return
+
+    assert cb.ax.get_navigate()
+
+    # Mouse from 4 to 6 (data coordinates, "d").
+    vmin, vmax = 4, 6
+    # The y coordinate doesn't matter, it just needs to be between 0 and 1
+    # However, we will set d0/d1 to the same y coordinate to test that small
+    # pixel changes in that coordinate doesn't cancel the zoom like a normal
+    # axes would.
+    d0 = (vmin, 0.5)
+    d1 = (vmax, 0.5)
+    # Swap them if the orientation is vertical
+    if orientation == "vertical":
+        d0 = d0[::-1]
+        d1 = d1[::-1]
+    # Convert to screen coordinates ("s").  Events are defined only with pixel
+    # precision, so round the pixel values, and below, check against the
+    # corresponding xdata/ydata, which are close but not equal to d0/d1.
+    s0 = cb.ax.transData.transform(d0).astype(int)
+    s1 = cb.ax.transData.transform(d1).astype(int)
+
+    # Set up the mouse movements
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *s0, button)
+    stop_event = MouseEvent(
+        "button_release_event", fig.canvas, *s1, button)
+
+    tb = NavigationToolbar2(fig.canvas)
+    if tool == "zoom":
+        tb.zoom()
+        tb.press_zoom(start_event)
+        tb.drag_zoom(stop_event)
+        tb.release_zoom(stop_event)
+    else:
+        tb.pan()
+        tb.press_pan(start_event)
+        tb.drag_pan(stop_event)
+        tb.release_pan(stop_event)
+
+    # Should be close, but won't be exact due to screen integer resolution
+    assert (cb.vmin, cb.vmax) == pytest.approx(expected, abs=0.15)
+
+
+def test_toolbar_zoompan():
+    expected_warning_regex = (
+        r"Treat the new Tool classes introduced in "
+        r"v[0-9]*.[0-9]* as experimental for now; "
+        "the API and rcParam may change in future versions.")
+    with pytest.warns(UserWarning, match=expected_warning_regex):
+        plt.rcParams['toolbar'] = 'toolmanager'
+    ax = plt.gca()
+    assert ax.get_navigate_mode() is None
+    ax.figure.canvas.manager.toolmanager.add_tool(name="zoom",
+                                                  tool=ToolZoom)
+    ax.figure.canvas.manager.toolmanager.add_tool(name="pan",
+                                                  tool=ToolPan)
+    ax.figure.canvas.manager.toolmanager.add_tool(name=_views_positions,
+                                                  tool=ToolViewsPositions)
+    ax.figure.canvas.manager.toolmanager.add_tool(name='rubberband',
+                                                  tool=RubberbandBase)
+    ax.figure.canvas.manager.toolmanager.trigger_tool('zoom')
+    assert ax.get_navigate_mode() == "ZOOM"
+    ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
+    assert ax.get_navigate_mode() == "PAN"
+
+
+@pytest.mark.parametrize(
+    "backend", ['svg', 'ps', 'pdf', pytest.param('pgf', marks=needs_xelatex)]
+)
+def test_draw(backend):
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvas
+    test_backend = pytest.importorskip(
+        f'matplotlib.backends.backend_{backend}'
+    )
+    TestCanvas = test_backend.FigureCanvas
+    fig_test = Figure(constrained_layout=True)
+    TestCanvas(fig_test)
+    axes_test = fig_test.subplots(2, 2)
+
+    # defaults to FigureCanvasBase
+    fig_agg = Figure(constrained_layout=True)
+    # put a backends.backend_agg.FigureCanvas on it
+    FigureCanvas(fig_agg)
+    axes_agg = fig_agg.subplots(2, 2)
+
+    init_pos = [ax.get_position() for ax in axes_test.ravel()]
+
+    fig_test.canvas.draw()
+    fig_agg.canvas.draw()
+
+    layed_out_pos_test = [ax.get_position() for ax in axes_test.ravel()]
+    layed_out_pos_agg = [ax.get_position() for ax in axes_agg.ravel()]
+
+    for init, placed in zip(init_pos, layed_out_pos_test):
+        assert not np.allclose(init, placed, atol=0.005)
+
+    for ref, test in zip(layed_out_pos_agg, layed_out_pos_test):
+        np.testing.assert_allclose(ref, test, atol=0.005)
