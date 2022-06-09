@@ -575,8 +575,9 @@ class Sim:
                      "latency": float(message.timestamp_rec) - float(message.timestamp),
                      "time_response": time_service + self.env.now - float(message.timestamp_rec),
                      "time_wait": self.env.now - float(message.timestamp_rec),
-                     "throughput": message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
-                                                    + float(message.timestamp_rec) - float(message.timestamp))
+                     "throughput": message.bytes,
+
+
 
                      })
                 # self.timeIn = self.env.now
@@ -598,7 +599,8 @@ class Sim:
                      "time_response": time_service + self.env.now - float(message.timestamp_rec),
                      "time_wait": self.env.now - float(message.timestamp_rec),
 
-                     "throughput": 0
+                     "throughput": 0,
+
 
                      })
                 # self.timeIn = self.env.now
