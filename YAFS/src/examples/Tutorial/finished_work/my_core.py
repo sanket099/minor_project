@@ -228,6 +228,74 @@ class Sim:
                             if (msgList[j]).inst > (msgList[j + 1]).inst:
                                 msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
 
+    def __dpto(self, wait):
+
+        # COMMENT LINE 580 to remove or COMMENT THIS FUNCTION
+
+
+            ls = list(self.network_ctrl_pipe.items)
+            print("items")
+            print(self.network_ctrl_pipe.items)
+            # 2 A1, 1 A2, 1 A3
+            pos_n1 = 2
+            pos_n2 = 3
+
+            #IF NOT EFFECT CHANGE THIS AND WAIT TIME (ON CALLING), RIGHT NOW IT IS WAITING TIME
+            n1 = 0.5
+            n2 = 0.8
+
+            twait = 0
+
+            copy_ls = list(self.network_ctrl_pipe.items)
+            for i in range(len(ls)):
+                msg = ls[i]
+
+                wait_time = wait  # need to
+                twait = wait_time
+                print("Wait time" + str(wait_time))
+                if msg.msgType == 2 and wait_time > n1:
+                    copy_ls.insert(pos_n1, copy_ls[i])
+                    if pos_n1 < len(ls): pos_n1 += 1
+
+                if msg.msgType == 3 and wait_time > n2:
+                    copy_ls.insert(pos_n2, copy_ls[i])
+                    if pos_n2 < len(ls): pos_n2 += 1
+
+            print("COPY LS")
+            print(copy_ls)
+            print(ls)
+
+
+            # oneList = []
+            # twoList = []
+            # thirdList = []
+            #
+            # for i in range(len(copy_ls)):
+            #     msg = copy_ls[i]
+            #     if msg.msgType == 1:
+            #         oneList.append(msg)
+            #     elif msg.msgType == 2:
+            #         twoList.append(msg)
+            #     elif msg.msgType == 3:
+            #         thirdList.append(msg)
+            # self.__sort(copy_ls) uncomment to apply sjf in dpto
+
+            # self.__sort(oneList)
+            # self.__sort(twoList)
+            # self.__sort(thirdList)
+            #
+            # for i in range(len(oneList)):
+            #     copy_ls.append(oneList[i])
+            # for i in range(len(twoList)):
+            #     copy_ls.append(twoList[i])
+            # for i in range(len(thirdList)):
+            #     copy_ls.append(thirdList[i])
+
+            for i in range(len(copy_ls)):
+                ms = copy_ls[i]
+                self.network_ctrl_pipe.put(ms)
+                print("somethingdpto")
+
     def __network_process(self):
         """
         This is an internal DES-process who manages the latency of messages sent in the network.
@@ -238,72 +306,10 @@ class Sim:
         self.last_busy_time = {}  # dict(zip(edges, [0.0] * len(edges)))
         # message = yield self.network_ctrl_pipe.get()
 
-        flag = False
-
         while not self.stop:
 
             message = yield self.network_ctrl_pipe.get()
-            print("TAG CORE2 " + str(self.network_ctrl_pipe.items))
 
-            if not flag:
-
-                ls = list(self.network_ctrl_pipe.items)
-                print("items")
-                print(self.network_ctrl_pipe.items)
-                # 2 A1, 1 A2, 1 A3
-                pos_n1 = 2
-                pos_n2 = 3
-                n1 = 300
-                n2 = 600
-                copy_ls = list(self.network_ctrl_pipe.items)
-                for i in range(len(ls)):
-                    msg = ls[i]
-                    wait_time = self.env.now  # need to
-                    print("Wait time" + str(wait_time))
-                    if msg.msgType == 2 and wait_time > n1:
-                        copy_ls.insert(pos_n1, copy_ls[i])
-                        if pos_n1 < len(ls): pos_n1 += 1
-
-                    if msg.msgType == 3 and wait_time > n2:
-                        copy_ls.insert(pos_n2, copy_ls[i])
-                        if pos_n2 < len(ls): pos_n2 += 1
-
-                print("COPY LS")
-                print(copy_ls)
-                print(ls)
-                flag = True
-
-                # oneList = []
-                # twoList = []
-                # thirdList = []
-                #
-                # for i in range(len(copy_ls)):
-                #     msg = copy_ls[i]
-                #     if msg.msgType == 1:
-                #         oneList.append(msg)
-                #     elif msg.msgType == 2:
-                #         twoList.append(msg)
-                #     elif msg.msgType == 3:
-                #         thirdList.append(msg)
-               # self.__sort(copy_ls) uncomment to apply sjf in dpto
-
-                # self.__sort(oneList)
-                # self.__sort(twoList)
-                # self.__sort(thirdList)
-                #
-                # for i in range(len(oneList)):
-                #     copy_ls.append(oneList[i])
-                # for i in range(len(twoList)):
-                #     copy_ls.append(twoList[i])
-                # for i in range(len(thirdList)):
-                #     copy_ls.append(thirdList[i])
-
-                for i in range(len(copy_ls)):
-                    ms = copy_ls[i]
-                    self.network_ctrl_pipe.put(ms)
-                    print("something")
-
-            # message = yield self.network_ctrl_pipe.get()
 
             # print "NetworkProcess --- Current time %d " %self.env.now
             # print "name " + message.name
@@ -311,6 +317,9 @@ class Sim:
             # print "DST_INT:",message.dst_int
             # #print message.timestamp
             # print "DST",message.dst
+
+            # comment till here to remove dpto
+
 
             # If same SRC and PATH or the message has achieved the penultimate node to reach the dst
             if not message.path or message.path[-1] == message.dst_int or len(message.path) == 1:
@@ -322,6 +331,7 @@ class Sim:
                 # The message is sent to the module.pipe
                 print("message going")
                 self.consumer_pipes[pipe_id].put(message)
+
             else:
                 # The message is sent at first time or it sent more times.
                 # if message.dst_int < 0:
@@ -350,6 +360,7 @@ class Sim:
                 """
                 size_bits = message.bytes
                 # size_bits = message.bytes * 8
+
                 try:
                     # transmit = size_bits / (self.topology.get_edge(link)[Topology.LINK_BW] * 1000000.0)  # MBITS!
                     transmit = size_bits / (self.topology.get_edge(link)[Topology.LINK_BW] * 1000000.0)  # MBITS!
@@ -378,6 +389,10 @@ class Sim:
 
                     self.last_busy_time[link] = last_used
                     self.env.process(self.__wait_message(message, latency_msg_link, shift_time))
+
+
+                    flag = False
+
                 except:
                     # This fact is produced when a node or edge the topology is changed or disappeared
                     self.logger.warning(
@@ -404,6 +419,7 @@ class Sim:
                         # print "\t",msg.path
 
                         self.network_ctrl_pipe.put(message)
+
 
     def __wait_message(self, msg, latency, shift_time):
         """
@@ -560,6 +576,11 @@ class Sim:
 
             # print "Source DES ",sourceDES
             # print "-" * 50
+
+            # DPTO
+
+            # self.__dpto(self.env.now - float(message.timestamp_rec))
+
 
             if (time_service + self.env.now - float(message.timestamp_rec)
                 + float(message.timestamp_rec) - float(message.timestamp)) != 0:

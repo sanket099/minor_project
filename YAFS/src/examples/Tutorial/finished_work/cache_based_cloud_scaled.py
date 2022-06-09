@@ -16,10 +16,12 @@ from yafs.topology import Topology
 from simpleSelectionWithCloud import CacheBasedSolutionWithCloud
 from simpleSelectionWithCloud import CacheBasedSolutionWithCloudScaled
 from simpleSelection import FIFO
+from simpleSelectionWithCloud import FIFOCloudScaled
 import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
 from simpleSelectionWithCloud import RoundRobinCloud
+from simpleSelectionWithCloud import RoundRobinCloudScaled
 from simplePlacement import CloudPlacement
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
@@ -464,62 +466,6 @@ def create_application():
     return a
 
 
-# def create_json_topology():
-#     """
-#        TOPOLOGY DEFINITION
-#        Some attributes of fog entities (nodes) are approximate
-#        """
-#
-#     ## MANDATORY FIELDS
-#     topology_json = {}
-#     topology_json["entity"] = []
-#     topology_json["link"] = []
-#
-#     cloud_dev = {"id": 0, "model": "cloud", "mytag": "cloud", "IPT": 500, "RAM": 40000, "COST": 3,
-#                  "WATT": 200.0}
-#     cloud_dev2 = {"id": 3, "model": "cloud", "mytag": "cloud", "IPT": 100, "RAM": 40000, "COST": 3,
-#                   "WATT": 200.0}
-#     cloud_dev3 = {"id": 4, "model": "cloud", "mytag": "cloud", "IPT": 800, "RAM": 40000, "COST": 3,
-#                   "WATT": 200.0}
-#
-#     cloud = {"id": 5, "model": "cloud", "mytag": "cloud", "IPT": 100000, "RAM": 40000, "COST": 3,
-#              "WATT": 200.0}
-#
-#     sensor_dev = {"id": 1, "model": "sensor-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
-#     actuator_dev = {"id": 2, "model": "actuator-device", "IPT": 100, "RAM": 4000, "COST": 3, "WATT": 40.0}
-#
-#     # if ipt of node is less than instructions of message, send to another node and store in hm
-#
-#     link1 = {"s": 1, "d": 0, "BW": 1, "PR": 1}
-#     link2 = {"s": 0, "d": 2, "BW": 1, "PR": 1}
-#     link3 = {"s": 1, "d": 3, "BW": 1, "PR": 1}
-#     link4 = {"s": 3, "d": 2, "BW": 1, "PR": 1}
-#     link5 = {"s": 1, "d": 4, "BW": 1, "PR": 1}
-#     link6 = {"s": 4, "d": 2, "BW": 1, "PR": 1}
-#
-#     link7 = {"s": 1, "d": 5, "BW": 1, "PR": 1}
-#     link8 = {"s": 5, "d": 2, "BW": 1, "PR": 1}
-#
-#     topology_json["entity"].append(cloud_dev)
-#     topology_json["entity"].append(cloud_dev2)
-#     topology_json["entity"].append(cloud_dev3)
-#     topology_json["entity"].append(cloud)
-#
-#     topology_json["entity"].append(sensor_dev)
-#     topology_json["entity"].append(actuator_dev)
-#     topology_json["link"].append(link1)
-#     topology_json["link"].append(link2)
-#     topology_json["link"].append(link3)
-#     topology_json["link"].append(link4)
-#     topology_json["link"].append(link5)
-#     topology_json["link"].append(link6)
-#
-#     topology_json["link"].append(link7)
-#     topology_json["link"].append(link8)
-#
-#     return topology_json
-
-
 # @profile
 def main(simulated_time):
     random.seed(RANDOM_SEED)
@@ -584,7 +530,7 @@ def main(simulated_time):
                app.get_message("M.Y"), app.get_message("M.Z")
                ]
     # sort(msgList) # remove this to make fcfs
-    sortQueue(msgList)
+    # sortQueue(msgList)
 
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,

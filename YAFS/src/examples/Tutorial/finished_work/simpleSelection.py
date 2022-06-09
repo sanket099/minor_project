@@ -84,7 +84,7 @@ class RoundRobin(Selection):
                     bestPath = [path]
                     bestDES = [des]
 
-                    self.rr[message.dst] = (self.rr[message.dst] + 2) % len(DES_dst)
+                    self.rr[message.dst] = (self.rr[message.dst] + 1) % len(DES_dst)
                     break
             else:  # message.name == "M.B or M.D"
 

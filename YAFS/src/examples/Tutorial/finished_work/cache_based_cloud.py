@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 import time
 import numpy as np
+import pandas as pd
 
 
 from my_core import Sim
@@ -185,7 +186,7 @@ def main(simulated_time):
 
     msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
     #sort(msgList) # remove this to make fcfs
-    sortQueue(msgList)
+    # sortQueue(msgList) # UNCOMMENT TO ENABLE DPTO
 
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
@@ -199,7 +200,9 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = FIFOCloud()
+    selectorPath = CacheBasedSolutionWithCloud()
+    #selectorPath = FIFOCloud()
+    #selectorPath = RoundRobinCloud()
 
     """
     SIMULATION ENGINE
@@ -282,3 +285,17 @@ if __name__ == '__main__':
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
     print("\t\t Energy " + str(m.get_watt(1000, t)))
+
+    ## results
+    print("----------------------------------------")
+    print("LATENCY")
+    folder_results = Path("results/")
+    folder_results.mkdir(parents=True, exist_ok=True)
+    folder_results = str(folder_results) + "/"
+    path = folder_results + "sim_trace.csv"
+    info = pd.read_csv(path)
+    data = pd.DataFrame(info)
+    latency = data['latency'].sum() + data['time_response'].sum()
+    count = data.shape[0]
+    avg = latency / count
+    print("Latency : " + str(avg))

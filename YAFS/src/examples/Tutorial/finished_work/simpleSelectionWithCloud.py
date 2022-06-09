@@ -25,30 +25,53 @@ class FIFOCloud(Selection):
         bestPath = []
         bestDES = []
 
+
         for des in DES_dst:  ## In this case, there are only one deployment
-            if message.getIns() > 5000 and message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" :  # message.msgType == 3:
+            print("HELLO DES" + str(des))
+            print("HELLO NODE " + str(alloc_DES[des]))
+            if message.getIns() > 3000:  # message.msgType == 3:
                 # find des of cloud
-                des_cloud = 8
-                dst_node_cloud = 5
+                if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" :
+                    des_cloud = 8
+                    dst_node_cloud = alloc_DES[des_cloud]
 
-                print("\t\t Looking the path to id_node: %i" % dst_node_cloud)
+                    print("\t\t Looking the path to id_node CLOUD: %i" % dst_node_cloud )
+                    print(" INSTRUCTION : %i" % message.getIns())
 
-                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
-                print(path)
+                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
+                    print(path)
 
-                nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
-                print("IPT OF CLOUD " + str(nodeIPT))
+                    nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
+                    print("IPT OF CLOUD " + str(nodeIPT))
+                    bestPath = [path]
+                    bestDES = [des_cloud]
+                    break
+                else :
+                    des_cloud = 4
+                    dst_node_cloud = alloc_DES[des_cloud]
+
+                    print("\t\t Looking the path to id_node CLOUD: %i" % dst_node_cloud)
+                    print(" INSTRUCTION : %i" % message.getIns())
+
+                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
+                    print(path)
+
+                    nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
+                    print("IPT OF CLOUD " + str(nodeIPT))
+                    bestPath = [path]
+                    bestDES = [des_cloud]
+                    break
+            else:
+                dst_node = alloc_DES[des]
+                print("\t\t Looking the path to id_node: %i" % dst_node)
+                print(" INSTRUCTION : %i" % message.getIns())
+
+                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+
                 bestPath = [path]
-                bestDES = [des_cloud]
-                return bestPath, bestDES
+                bestDES = [des]
+                break
 
-            dst_node = alloc_DES[des]
-            print("\t\t Looking the path to id_node: %i" % dst_node)
-
-            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-
-            bestPath = [path]
-            bestDES = [des]
 
         return bestPath, bestDES
 
@@ -76,29 +99,60 @@ class FIFOCloudScaled(Selection):
         bestDES = []
 
         for des in DES_dst:  ## In this case, there are only one deployment
+            print("HELLO DES" + str(des))
+            print("HELLO NODE " + str(alloc_DES[des]))
+            if(des == 27): continue
             if message.getIns() > 5000:  # message.msgType == 3:
-                # find des of cloud
-                des_cloud = 28
-                dst_node = 3
 
+                if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
+                        or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
+                        or message.name == "M.H" or message.name == "M.I" or message.name == "M.J" \
+                        or message.name == "M.K" or message.name == "M.L" or message.name == "M.M" \
+                        or message.name == "M.N" or message.name == "M.O" or message.name == "M.P" \
+                        or message.name == "M.Q" or message.name == "M.R" or message.name == "M.S" \
+                        or message.name == "M.T" or message.name == "M.U" or message.name == "M.V" \
+                        or message.name == "M.W" or message.name == "M.X" or message.name == "M.Y" \
+                        or message.name == "M.Z":
+                    des_cloud = 78
+                    dst_node_cloud = alloc_DES[des_cloud]
+
+                    print("\t\t Looking the path to id_node CLOUD: %i" % dst_node_cloud )
+                    print(" INSTRUCTION : %i" % message.getIns())
+
+                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
+                    print(path)
+
+                    nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
+                    print("IPT OF CLOUD " + str(nodeIPT))
+                    bestPath = [path]
+                    bestDES = [des_cloud]
+                    break
+                else :
+                    des_cloud = 26
+                    dst_node_cloud = 2
+
+                    print("\t\t Looking the path to id_node CLOUD: %i" % dst_node_cloud)
+                    print(" INSTRUCTION : %i" % message.getIns())
+
+                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node_cloud))
+                    print(path)
+
+                    nodeIPT = sim.topology.get_node(dst_node_cloud)["IPT"]
+                    print("IPT OF CLOUD " + str(nodeIPT))
+                    bestPath = [path]
+                    bestDES = [des_cloud]
+                    break
+            else:
+
+
+                dst_node = alloc_DES[des]
                 print("\t\t Looking the path to id_node: %i" % dst_node)
 
                 path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                print(path)
 
-                nodeIPT = sim.topology.get_node(dst_node)["IPT"]
-                print("IPT OF CLOUD " + str(nodeIPT))
                 bestPath = [path]
-                bestDES = [des_cloud]
+                bestDES = [des]
                 break
-
-            dst_node = alloc_DES[des]
-            print("\t\t Looking the path to id_node: %i" % dst_node)
-
-            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-
-            bestPath = [path]
-            bestDES = [des]
 
         return bestPath, bestDES
 
@@ -172,27 +226,30 @@ class CacheBasedSolutionWithCloud(Selection):
         # time_emit = sim.env.now
         # latency = float(message.timestamp_rec) - float(message.timestamp)
         if(DES_dst[0] == 8):
-            print("POP" + str(DES_dst.pop(0)))
+            print("POP" + str(DES_dst.remove(8)))
             print("POP" + str(len(DES_dst)))
+
+        if message.getIns() > 3000:  # message.msgType == 3:
+            # find des of cloud
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
+                des = 8
+            else:
+                des = 4
+            dst_node = alloc_DES[des]
+
+            print("\t\t Looking the path to id_node: %i" % dst_node)
+
+            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+            print(path)
+            bestPath = [path]
+            bestDES = [des]
+            return bestPath, bestDES
+
+
         for des in DES_dst:
             print("DES")
 
-
-
             if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" :
-
-                if message.getIns() > 3000: #message.msgType == 3:
-                    # find des of cloud
-                    des = 8
-                    dst_node = 5
-
-                    print("\t\t Looking the path to id_node: %i" % dst_node)
-
-                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                    print(path)
-                    bestPath = [path]
-                    bestDES = [des]
-                    break
 
                 time_emit_present = sim.env.now
                 print("time_emit_pres" + str(time_emit_present) + "times" + str(self.times[des]))
@@ -236,18 +293,6 @@ class CacheBasedSolutionWithCloud(Selection):
 
                 break
             else:
-                # if message.getIns() > 3000: #message.msgType == 3:
-                #     # find des of cloud
-                #     des = 4
-                #     dst_node = alloc_DES[des]
-                #
-                #     print("\t\t Looking the path to id_node: %i" % dst_node)
-                #
-                #     path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                #     print(path)
-                #     bestPath = [path]
-                #     bestDES = [des]
-                #     break
 
                 dst_node = alloc_DES[des]
                 print("des %i" % des)
@@ -336,9 +381,44 @@ class CacheBasedSolutionWithCloudScaled(Selection):
 
         # time_emit = sim.env.now
         # latency = float(message.timestamp_rec) - float(message.timestamp)
-        if (DES_dst[0] == 28):
-            print("POP" + str(DES_dst.pop(0)))
+
+        if (27 in DES_dst):
+            print("POP" + str(DES_dst.remove(27)))  # removing random node, idk why it is there
+
+
+        if (DES_dst[0] == 78): # removing cloud because have to add manually
+            print("POP" + str(DES_dst.remove(78)))
             print("POP" + str(len(DES_dst)))
+
+        if message.getIns() > 5000:  # message.msgType == 3:
+            # find des of cloud
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
+                    or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
+                    or message.name == "M.H" or message.name == "M.I" or message.name == "M.J" \
+                    or message.name == "M.K" or message.name == "M.L" or message.name == "M.M" \
+                    or message.name == "M.N" or message.name == "M.O" or message.name == "M.P" \
+                    or message.name == "M.Q" or message.name == "M.R" or message.name == "M.S" \
+                    or message.name == "M.T" or message.name == "M.U" or message.name == "M.V" \
+                    or message.name == "M.W" or message.name == "M.X" or message.name == "M.Y" \
+                    or message.name == "M.Z":
+
+                    des_cloud = 78
+            else:
+                    des_cloud = 26
+
+            dst_node = alloc_DES[des_cloud]
+
+            print("\t\t Looking the path to id_node: %i" % dst_node)
+
+            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+            print(path)
+
+            nodeIPT = sim.topology.get_node(dst_node)["IPT"]
+            print("IPT OF CLOUD " + str(nodeIPT))
+            bestPath = [path]
+            bestDES = [des_cloud]
+            return bestPath, bestDES
+
         for des in DES_dst:
 
 
@@ -351,24 +431,6 @@ class CacheBasedSolutionWithCloudScaled(Selection):
                     or message.name == "M.T" or message.name == "M.U" or message.name == "M.V" \
                     or message.name == "M.W" or message.name == "M.X" or message.name == "M.Y" \
                     or message.name == "M.Z":
-
-
-                if message.getIns() > 5000 : #message.msgType == 3:
-                    # find des of cloud
-                    des_cloud = 28
-                    dst_node = 3
-
-                    print("\t\t Looking the path to id_node: %i" % dst_node)
-
-                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                    print(path)
-
-                    nodeIPT = sim.topology.get_node(dst_node)["IPT"]
-                    print("IPT OF CLOUD " + str(nodeIPT))
-                    bestPath = [path]
-                    bestDES = [des_cloud]
-                    break
-                else :
 
                     time_emit_present = sim.env.now
                     print("time_emit_pres" + str(time_emit_present) + "times" + str(self.times[des]))
@@ -471,8 +533,30 @@ class RoundRobinCloud(Selection):
         bestDES = []
         print("Round Robin * ***************************")
 
+        if(8 in DES_dst):
+            print("POP" + str(DES_dst.remove(8))) #removing cloud process as that is done manually
+
+        if message.getIns() > 3000:
+            # find des of cloud
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
+                des = 8
+            else:
+                des = 4
+            dst_node = alloc_DES[des]
+
+            print("\t\t Looking the path to id_node: %i" % dst_node)
+
+            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+            print(path)
+            bestPath = [path]
+            bestDES = [des]
+            return bestPath, bestDES
+
 
         for ix, des in enumerate(DES_dst):
+            print("HELLO DES" + str(des))
+            print("HELLO NODE " + str(alloc_DES[des]))
+
             print("DES " + str(DES_dst))
             print("ix %i" % ix)
             print("des %i" % des)
@@ -480,19 +564,6 @@ class RoundRobinCloud(Selection):
             print(message.dst)
             if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
                 print("rr dict " + str(self.rr))
-
-                if message.getIns() > 5000:
-                    # find des of cloud
-                    des = 8
-                    dst_node = 5
-
-                    print("\t\t Looking the path to id_node: %i" % dst_node)
-
-                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                    print(path)
-                    bestPath = [path]
-                    bestDES = [des]
-                    return bestPath, bestDES
 
                 if self.rr[message.dst] == ix:
                     dst_node = alloc_DES[des]
@@ -504,7 +575,8 @@ class RoundRobinCloud(Selection):
                     bestPath = [path]
                     bestDES = [des]
 
-                    self.rr[message.dst] = (self.rr[message.dst] + 2) % len(DES_dst)
+                    self.rr[message.dst] = (self.rr[message.dst] + 1) % len(DES_dst)
+                    break
 
             else:  # message.name == "M.B or M.D"
 
@@ -521,18 +593,19 @@ class RoundRobinCloud(Selection):
                 #     bestDES = [des]
                 #     return bestPath, bestDES
 
-                dst_node = alloc_DES[des]
+                    dst_node = alloc_DES[des]
 
-                print("ix %i" % ix)
-                print("des %i" % des)
+                    print("ix %i" % ix)
+                    print("des %i" % des)
 
-                path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                if message.broadcasting:
-                    bestPath.append(path)
-                    bestDES.append(des)
-                else:
-                    bestPath = [path]
-                    bestDES = [des]
+                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+                    if message.broadcasting:
+                        bestPath.append(path)
+                        bestDES.append(des)
+                    else:
+                        bestPath = [path]
+                        bestDES = [des]
+                    #break
 
         return bestPath, bestDES
 
@@ -564,27 +637,55 @@ class RoundRobinCloudScaled(Selection):
         bestDES = []
         print("Round Robin * ***************************")
 
+        if (78 in DES_dst):
+            print("POP" + str(DES_dst.remove(78)))  # removing cloud process as that is done manually
+
+        if message.getIns() > 5000:
+            # find des of cloud
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
+                    or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
+                    or message.name == "M.H" or message.name == "M.I" or message.name == "M.J" \
+                    or message.name == "M.K" or message.name == "M.L" or message.name == "M.M" \
+                    or message.name == "M.N" or message.name == "M.O" or message.name == "M.P" \
+                    or message.name == "M.Q" or message.name == "M.R" or message.name == "M.S" \
+                    or message.name == "M.T" or message.name == "M.U" or message.name == "M.V" \
+                    or message.name == "M.W" or message.name == "M.X" or message.name == "M.Y" \
+                    or message.name == "M.Z":
+                des = 78
+            else:
+                des = 26
+            dst_node = alloc_DES[des]
+
+            print("\t\t Looking the path to id_node: %i" % dst_node)
+
+            path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
+            print(path)
+            bestPath = [path]
+            bestDES = [des]
+            return bestPath, bestDES
+
+        if (27 in DES_dst):
+            print("POP" + str(DES_dst.remove(27)))  # removing random node, idk why it is there
+
         for ix, des in enumerate(DES_dst):
+
+
+
             print("DES " + str(DES_dst))
             print("ix %i" % ix)
             print("des %i" % des)
 
             print(message.dst)
-            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D":
+            if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
+                    or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
+                    or message.name == "M.H" or message.name == "M.I" or message.name == "M.J" \
+                    or message.name == "M.K" or message.name == "M.L" or message.name == "M.M" \
+                    or message.name == "M.N" or message.name == "M.O" or message.name == "M.P" \
+                    or message.name == "M.Q" or message.name == "M.R" or message.name == "M.S" \
+                    or message.name == "M.T" or message.name == "M.U" or message.name == "M.V" \
+                    or message.name == "M.W" or message.name == "M.X" or message.name == "M.Y" \
+                    or message.name == "M.Z":
                 print("rr dict " + str(self.rr))
-
-                if message.getIns() > 5000:
-                    # find des of cloud
-                    des = 28
-                    dst_node = 3
-
-                    print("\t\t Looking the path to id_node: %i" % dst_node)
-
-                    path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
-                    print(path)
-                    bestPath = [path]
-                    bestDES = [des]
-                    return bestPath, bestDES
 
                 if self.rr[message.dst] == ix:
                     dst_node = alloc_DES[des]
@@ -596,7 +697,8 @@ class RoundRobinCloudScaled(Selection):
                     bestPath = [path]
                     bestDES = [des]
 
-                    self.rr[message.dst] = (self.rr[message.dst] + 2) % len(DES_dst)
+                    self.rr[message.dst] = (self.rr[message.dst] + 1) % len(DES_dst)
+                    break
 
             else:  # message.name == "M.B or M.D"
 
@@ -625,5 +727,6 @@ class RoundRobinCloudScaled(Selection):
                 else:
                     bestPath = [path]
                     bestDES = [des]
+                break
 
         return bestPath, bestDES
