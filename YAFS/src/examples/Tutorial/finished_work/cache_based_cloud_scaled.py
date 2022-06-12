@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 import time
 import numpy as np
+import pandas as pd
 
 from my_core import Sim
 from MyApplication import Application, Message
@@ -545,6 +546,7 @@ def main(simulated_time):
     # This implementation is already created in selector.class,called: First_ShortestPath
 
     selectorPath = CacheBasedSolutionWithCloudScaled()
+    #selectorPath= FIFOCloudScaled()
 
     """
     SIMULATION ENGINE
@@ -632,4 +634,33 @@ if __name__ == '__main__':
 
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
-    print("\t\t Energy " + str(m.get_watt(1000, t)))
+    energy = m.get_watt(1000, t)
+    print(str(energy))
+    totalenergy = 0
+    countnodes = 0
+    for node in energy:
+        if energy[node]["watt"] == 0.0:
+            continue
+        totalenergy += energy[node]["watt"]
+        countnodes += 1
+    print("----------------------------------------")
+    print("ENERGY")
+    print("Energy : " + str(totalenergy / countnodes))
+
+    ## results
+    print("----------------------------------------")
+    print("LATENCY")
+    folder_results = Path("results/")
+    folder_results.mkdir(parents=True, exist_ok=True)
+    folder_results = str(folder_results) + "/"
+    path = folder_results + "sim_trace.csv"
+    info = pd.read_csv(path)
+    data = pd.DataFrame(info)
+    latency = data['latency'].sum() + data['time_response'].sum()
+    count = data.shape[0]
+    avg = latency / count
+    print("Latency : " + str(avg))
+    throughput = data["throughput"].sum() / count
+    print("----------------------------------------")
+    print("THROUGHPUT")
+    print("Throughput : " + str(throughput))

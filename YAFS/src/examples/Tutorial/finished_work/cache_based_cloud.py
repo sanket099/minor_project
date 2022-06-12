@@ -284,7 +284,17 @@ if __name__ == '__main__':
 
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
-    print("\t\t Energy " + str(m.get_watt(1000, t)))
+    energy = m.get_watt(1000, t)
+    totalenergy = 0
+    countnodes = 0
+    for node in energy:
+        if energy[node]["watt"] == 0.0:
+            continue
+        totalenergy += energy[node]["watt"]
+        countnodes += 1
+    print("----------------------------------------")
+    print("ENERGY")
+    print("Energy : " + str(totalenergy / countnodes))
 
     ## results
     print("----------------------------------------")
@@ -299,3 +309,7 @@ if __name__ == '__main__':
     count = data.shape[0]
     avg = latency / count
     print("Latency : " + str(avg))
+    throughput = data["throughput"].sum()/count
+    print("----------------------------------------")
+    print("THROUGHPUT")
+    print("Throughput : " + str(throughput))

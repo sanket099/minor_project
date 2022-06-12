@@ -241,8 +241,8 @@ class Sim:
             pos_n2 = 3
 
             #IF NOT EFFECT CHANGE THIS AND WAIT TIME (ON CALLING), RIGHT NOW IT IS WAITING TIME
-            n1 = 0.5
-            n2 = 0.8
+            n1 = 0.25
+            n2 = 0.5
 
             twait = 0
 
@@ -579,7 +579,7 @@ class Sim:
 
             # DPTO
 
-            # self.__dpto(self.env.now - float(message.timestamp_rec))
+            self.__dpto(self.env.now - float(message.timestamp_rec))
 
 
             if (time_service + self.env.now - float(message.timestamp_rec)
@@ -596,7 +596,9 @@ class Sim:
                      "latency": float(message.timestamp_rec) - float(message.timestamp),
                      "time_response": time_service + self.env.now - float(message.timestamp_rec),
                      "time_wait": self.env.now - float(message.timestamp_rec),
-                     "throughput": message.bytes,
+                     "throughput": message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
+                                                    + float(message.timestamp_rec) - float(message.timestamp))
+,
 
 
 
