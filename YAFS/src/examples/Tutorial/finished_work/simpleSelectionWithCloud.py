@@ -102,7 +102,7 @@ class FIFOCloudScaled(Selection):
             print("HELLO DES" + str(des))
             print("HELLO NODE " + str(alloc_DES[des]))
             if(des == 27): continue
-            if message.getIns() > 5000:  # message.msgType == 3:
+            if message.getIns() > 30000:  # message.msgType == 3:
 
                 if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
                         or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
@@ -202,7 +202,7 @@ class CacheBasedSolutionWithCloud(Selection):
             des = self.hm[message.name]
             dst_node = alloc_DES[des]
 
-            print("\t\t Looking the path to id_node: %i" % dst_node)
+            print("\t\t CACHE: %i" % dst_node)
 
             path = list(nx.shortest_path(sim.topology.G, source=node_src, target=dst_node))
             print(path)
@@ -390,7 +390,7 @@ class CacheBasedSolutionWithCloudScaled(Selection):
             print("POP" + str(DES_dst.remove(78)))
             print("POP" + str(len(DES_dst)))
 
-        if message.getIns() > 5000:  # message.msgType == 3:
+        if message.getIns() > 30000:  # message.msgType == 3:
             # find des of cloud
             if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
                     or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
@@ -580,7 +580,7 @@ class RoundRobinCloud(Selection):
 
             else:  # message.name == "M.B or M.D"
 
-                # if message.getIns() > 5000:
+                # if message.getIns() > 30000:
                 #     # find des of cloud
                 #     des = 8
                 #     dst_node = 5
@@ -632,7 +632,7 @@ class RoundRobinCloudScaled(Selection):
         print("\tNode _ src (id_topology): %i" % node_src)
         print("\tRequest service: %s " % (message.dst))
         print("\tProcess serving that service: %s (pos ID: %i)" % (DES_dst, self.rr[message.dst]))
-
+        print("\t MESSAGE INS %s" %message.getIns())
         bestPath = []
         bestDES = []
         print("Round Robin * ***************************")
@@ -640,7 +640,7 @@ class RoundRobinCloudScaled(Selection):
         if (78 in DES_dst):
             print("POP" + str(DES_dst.remove(78)))  # removing cloud process as that is done manually
 
-        if message.getIns() > 5000:
+        if message.getIns() > 30000:
             # find des of cloud
             if message.name == "M.A" or message.name == "M.B" or message.name == "M.C" or message.name == "M.D" \
                     or message.name == "M.E" or message.name == "M.F" or message.name == "M.G" \
@@ -696,13 +696,13 @@ class RoundRobinCloudScaled(Selection):
 
                     bestPath = [path]
                     bestDES = [des]
-
-                    self.rr[message.dst] = (self.rr[message.dst] + 1) % len(DES_dst)
+                    if des != 78:
+                        self.rr[message.dst] = (self.rr[message.dst] + 1) % len(DES_dst)
                     break
 
             else:  # message.name == "M.B or M.D"
 
-                # if message.getIns() > 5000:
+                # if message.getIns() > 30000:
                 #     # find des of cloud
                 #     des = 8
                 #     dst_node = 5
@@ -727,6 +727,6 @@ class RoundRobinCloudScaled(Selection):
                 else:
                     bestPath = [path]
                     bestDES = [des]
-                break
+
 
         return bestPath, bestDES

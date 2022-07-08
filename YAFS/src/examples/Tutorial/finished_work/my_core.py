@@ -12,6 +12,8 @@ import copy
 import simpy
 import warnings
 import random
+from multiprocessing import Process
+from threading import Thread
 
 from yafs.topology import Topology
 from MyApplication import Application
@@ -165,6 +167,10 @@ class Sim:
         self.time_out = 0
         self.time_emit = 0
 
+        self.count = {}
+
+        self.wait_time = 0
+
 
 
     # self.__send_message(app_name, message, idDES, self.SOURCE_METRIC)
@@ -228,42 +234,46 @@ class Sim:
                             if (msgList[j]).inst > (msgList[j + 1]).inst:
                                 msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
 
-    def __dpto(self, wait):
+    def __dpto(self):
 
         # COMMENT LINE 580 to remove or COMMENT THIS FUNCTION
 
 
             ls = list(self.network_ctrl_pipe.items)
-            print("items")
-            print(self.network_ctrl_pipe.items)
+
             # 2 A1, 1 A2, 1 A3
             pos_n1 = 2
             pos_n2 = 3
 
             #IF NOT EFFECT CHANGE THIS AND WAIT TIME (ON CALLING), RIGHT NOW IT IS WAITING TIME
-            n1 = 0.25
-            n2 = 0.5
+            n1 = 300
+            n2 = 600
 
             twait = 0
 
             copy_ls = list(self.network_ctrl_pipe.items)
+
             for i in range(len(ls)):
                 msg = ls[i]
 
-                wait_time = wait  # need to
-                twait = wait_time
-                print("Wait time" + str(wait_time))
-                if msg.msgType == 2 and wait_time > n1:
-                    copy_ls.insert(pos_n1, copy_ls[i])
-                    if pos_n1 < len(ls): pos_n1 += 1
 
-                if msg.msgType == 3 and wait_time > n2:
-                    copy_ls.insert(pos_n2, copy_ls[i])
-                    if pos_n2 < len(ls): pos_n2 += 1
+                 # need to
 
-            print("COPY LS")
-            print(copy_ls)
-            print(ls)
+                actual_wait = self.env.now - self.wait_time
+                self.wait_time = actual_wait
+
+                print("WAIT TIME " + str(self.wait_time))
+                if self.wait_time > 0:
+                    if msg.msgType == 2 and self.wait_time > n1:
+                        copy_ls.insert(pos_n1, copy_ls[i])
+                        if pos_n1 < len(ls): pos_n1 += 1
+                        else: break
+
+                    if msg.msgType == 3 and self.wait_time > n2:
+                        copy_ls.insert(pos_n2, copy_ls[i])
+                        if pos_n2 < len(ls): pos_n2 += 1
+                        else: break
+
 
 
             # oneList = []
@@ -291,10 +301,17 @@ class Sim:
             # for i in range(len(thirdList)):
             #     copy_ls.append(thirdList[i])
 
+
+
+            self.network_ctrl_pipe.items.clear()
+
             for i in range(len(copy_ls)):
                 ms = copy_ls[i]
+
+
                 self.network_ctrl_pipe.put(ms)
-                print("somethingdpto")
+
+
 
     def __network_process(self):
         """
@@ -310,9 +327,12 @@ class Sim:
 
             message = yield self.network_ctrl_pipe.get()
 
+            ls = list(self.network_ctrl_pipe.items)
+            print("LIST ITEMS" + str(ls))
 
-            # print "NetworkProcess --- Current time %d " %self.env.now
-            # print "name " + message.name
+            print( "NetworkProcess --- Current time %d " %self.env.now)
+            print ("name " + message.name)
+
             # print "Path:",message.path
             # print "DST_INT:",message.dst_int
             # #print message.timestamp
@@ -331,6 +351,7 @@ class Sim:
                 # The message is sent to the module.pipe
                 print("message going")
                 self.consumer_pipes[pipe_id].put(message)
+                # self.__dpto()
 
             else:
                 # The message is sent at first time or it sent more times.
@@ -579,7 +600,7 @@ class Sim:
 
             # DPTO
 
-            self.__dpto(self.env.now - float(message.timestamp_rec))
+
 
 
             if (time_service + self.env.now - float(message.timestamp_rec)
@@ -598,7 +619,8 @@ class Sim:
                      "time_wait": self.env.now - float(message.timestamp_rec),
                      "throughput": message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
                                                     + float(message.timestamp_rec) - float(message.timestamp))
-,
+
+
 
 
 
@@ -622,7 +644,7 @@ class Sim:
                      "time_response": time_service + self.env.now - float(message.timestamp_rec),
                      "time_wait": self.env.now - float(message.timestamp_rec),
 
-                     "throughput": 0,
+                     "throughput": None,
 
 
                      })
@@ -695,6 +717,7 @@ class Sim:
         """
         self.logger.debug("Added_Process - Module Consumer: %s\t#DES:%i" % (module, ides))
         while not self.stop and self.des_process_running[ides]:
+            #self.__dpto()
             if self.des_process_running[ides]:
                 msg = yield self.consumer_pipes["%s%s%i" % (app_name, module, ides)].get()
                 # One pipe for each module name
@@ -1262,7 +1285,11 @@ class Sim:
         Args:
             until (int): Defines a stop time. If None the simulation runs until some internal algorithm changes the var *yafs.core.sim.stop* to True
         """
+        #self.env.process(self.__network_process())
+        #p = Process(target=self.__network_process)
         self.env.process(self.__network_process())
+
+
 
         """
         Creating app.sources and deploy the sources in the topology

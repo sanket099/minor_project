@@ -200,7 +200,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = CacheBasedSolutionWithCloud()
+    selectorPath = FIFOCloud()
     #selectorPath = FIFOCloud()
     #selectorPath = RoundRobinCloud()
 
@@ -309,7 +309,8 @@ if __name__ == '__main__':
     count = data.shape[0]
     avg = latency / count
     print("Latency : " + str(avg))
-    throughput = data["throughput"].sum()/count
+    thro = data['throughput'].count()
+    throughput = data["throughput"].sum() / thro
     print("----------------------------------------")
     print("THROUGHPUT")
     print("Throughput : " + str(throughput))
