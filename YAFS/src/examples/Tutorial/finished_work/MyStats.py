@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
 
@@ -76,8 +78,9 @@ class Stats:
             # Tiempo de actividad / runeo
             if "time_total_response" not in self.df.columns:  # cached
                 self.compute_times_df()
-
+            self.df.to_csv(Path("results/mk.csv"))
             nodes = self.df.groupby("TOPO.dst").agg({"time_service": "sum"})
+            print(nodes)
             print("nodes.index " + str(nodes.index))
             for id_node in nodes.index:
                 print("nodes.index " + str(id_node))

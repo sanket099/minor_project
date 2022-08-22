@@ -186,7 +186,7 @@ def main(simulated_time):
 
     msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
     #sort(msgList) # remove this to make fcfs
-    # sortQueue(msgList) # UNCOMMENT TO ENABLE DPTO
+    sortQueue(msgList) # UNCOMMENT TO ENABLE DPTO
 
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
@@ -200,9 +200,11 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = FIFOCloud()
     #selectorPath = FIFOCloud()
-    #selectorPath = RoundRobinCloud()
+    #selectorPath = CacheBasedSolutionWithCloud()
+    selectorPath = RoundRobinCloud()
+
+
 
     """
     SIMULATION ENGINE
@@ -285,6 +287,16 @@ if __name__ == '__main__':
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
     energy = m.get_watt(1000, t)
+    for i in range(0,6):
+        if i not in energy:
+            energy.update({i:{'model':'added','watt':0.0}})
+
+
+
+    df=pd.DataFrame.from_dict(energy,orient="index")
+    df.drop('model',inplace=True,axis=1)
+    print(str(energy))
+    print(df)
     totalenergy = 0
     countnodes = 0
     for node in energy:
@@ -314,3 +326,15 @@ if __name__ == '__main__':
     print("----------------------------------------")
     print("THROUGHPUT")
     print("Throughput : " + str(throughput))
+
+    #energy output
+    df.to_csv(folder_results+"energy.csv")
+
+    #jain fairness index
+    dest=data.groupby('TOPO.dst')['TOPO.dst'].agg('count').to_frame('count').reset_index()
+    dest.drop([1], axis=0, inplace=True)
+    dest['square'] = dest['count'] ** 2
+    fairness_index=(dest['count'].sum())**2/(4*dest['square'].sum())
+    print("----------------------------------------")
+    print("JAIN'S FAIRNESS INDEX")
+    print("FI : " + str(fairness_index))

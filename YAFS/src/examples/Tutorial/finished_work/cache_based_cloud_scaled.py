@@ -42,7 +42,7 @@ def create_application_test():
                    {"Actuator": {"Type": Application.TYPE_SINK}}
                    ])
 
-    n = 100000
+    n = 100
     c = 65
     for i in range(1,n):
         if(i <= 26):
@@ -575,8 +575,8 @@ def main(simulated_time, app):
                app.get_message("M.W"), app.get_message("M.X"),
                app.get_message("M.Y"), app.get_message("M.Z")
                ]
-    sort(msgList) # remove this to make fcfs
-    # sortQueue(msgList)
+    #sort(msgList) # remove this to make fcfs
+    #sortQueue(msgList)
 
     for i in msgList:
 
@@ -591,8 +591,9 @@ def main(simulated_time, app):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    # selectorPath = CacheBasedSolutionWithCloudScaled()
-    selectorPath= FIFOCloudScaled()
+    selectorPath = CacheBasedSolutionWithCloudScaled()
+    #selectorPath= FIFOCloudScaled()
+    #selectorPath=RoundRobinCloudScaled()
 
     """
     SIMULATION ENGINE
@@ -683,6 +684,14 @@ if __name__ == '__main__':
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
     energy = m.get_watt(1000, t)
+    for i in range(1,54):
+        if i not in energy:
+            energy.update({i:{'model':'added','watt':0.0}})
+
+
+
+    df=pd.DataFrame.from_dict(energy,orient="index")
+    df.drop('model',inplace=True,axis=1)
     print(str(energy))
     totalenergy = 0
     countnodes = 0
@@ -719,3 +728,16 @@ if __name__ == '__main__':
     makespan = data['service'].sum() #Makespan or completion time is the total time taken to process a set of jobs for its complete execution. Minimization of makespan
     print("MAKESPAN")
     print("MAKESPAN : " + str(makespan))
+
+    #energy output
+    df.to_csv(folder_results+"energy.csv")
+    #jain fairness index
+    dest=data.groupby('TOPO.dst')['TOPO.dst'].agg('count').to_frame('count').reset_index()
+
+    dest.drop([0], axis=0, inplace=True)
+    dest['square'] = dest['count'] ** 2
+    print(dest)
+    fairness_index=(dest['count'].sum())**2/(51*dest['square'].sum())
+    print("----------------------------------------")
+    print("JAIN'S FAIRNESS INDEX")
+    print("FI : " + str(fairness_index))
