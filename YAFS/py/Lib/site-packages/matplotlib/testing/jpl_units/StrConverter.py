@@ -27,15 +27,12 @@ class StrConverter(units.ConversionInterface):
     def convert(value, unit, axis):
         # docstring inherited
 
-        if units.ConversionInterface.is_numlike(value):
-            return value
-
         if value == []:
             return []
 
         # we delay loading to make matplotlib happy
         ax = axis.axes
-        if axis is ax.get_xaxis():
+        if axis is ax.xaxis:
             isXAxis = True
         else:
             isXAxis = False

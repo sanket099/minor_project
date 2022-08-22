@@ -12,6 +12,8 @@ import copy
 import simpy
 import warnings
 import random
+from multiprocessing import Process
+from threading import Thread
 
 from yafs.topology import Topology
 from MyApplication import Application
@@ -50,6 +52,8 @@ class Sim:
     FORWARD_METRIC = "FWD_M"
     SINK_METRIC = "SINK_M"
     LINK_METRIC = "LINK"
+
+
 
     def __init__(self, topology, name_register='events_log.json', link_register='links_log.json', redis=None,
                  purge_register=True, logger=None, default_results_path=None):
@@ -163,6 +167,12 @@ class Sim:
         self.time_out = 0
         self.time_emit = 0
 
+        self.count = {}
+
+        self.wait_time = 0
+
+
+
     # self.__send_message(app_name, message, idDES, self.SOURCE_METRIC)
     def __send_message(self, app_name, message, idDES, type):
         """
@@ -211,6 +221,97 @@ class Sim:
                     self.network_ctrl_pipe.put(msg)
         except KeyError:
             self.logger.warning("(#DES:%i)\t--- Unreacheable 4 DST:\t%s " % (idDES, message.name))
+    def __sort(self, msgList):
+            if msgList is not None:
+
+                if len(msgList) != 0:
+
+                    n = len(msgList)
+                    for i in range(n - 1):
+
+                        for j in range(0, n - i - 1):
+
+                            if (msgList[j]).inst > (msgList[j + 1]).inst:
+                                msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
+
+    def __dpto(self):
+
+        # COMMENT LINE 580 to remove or COMMENT THIS FUNCTION
+
+
+            ls = list(self.network_ctrl_pipe.items)
+
+            # 2 A1, 1 A2, 1 A3
+            pos_n1 = 2
+            pos_n2 = 3
+
+            #IF NOT EFFECT CHANGE THIS AND WAIT TIME (ON CALLING), RIGHT NOW IT IS WAITING TIME
+            n1 = 300
+            n2 = 600
+
+            twait = 0
+
+            copy_ls = list(self.network_ctrl_pipe.items)
+
+            for i in range(len(ls)):
+                msg = ls[i]
+
+
+                 # need to
+
+                actual_wait = self.env.now - self.wait_time
+                self.wait_time = actual_wait
+
+                print("WAIT TIME " + str(self.wait_time))
+                if self.wait_time > 0:
+                    if msg.msgType == 2 and self.wait_time > n1:
+                        copy_ls.insert(pos_n1, copy_ls[i])
+                        if pos_n1 < len(ls): pos_n1 += 1
+                        else: break
+
+                    if msg.msgType == 3 and self.wait_time > n2:
+                        copy_ls.insert(pos_n2, copy_ls[i])
+                        if pos_n2 < len(ls): pos_n2 += 1
+                        else: break
+
+
+
+            # oneList = []
+            # twoList = []
+            # thirdList = []
+            #
+            # for i in range(len(copy_ls)):
+            #     msg = copy_ls[i]
+            #     if msg.msgType == 1:
+            #         oneList.append(msg)
+            #     elif msg.msgType == 2:
+            #         twoList.append(msg)
+            #     elif msg.msgType == 3:
+            #         thirdList.append(msg)
+            # self.__sort(copy_ls) uncomment to apply sjf in dpto
+
+            # self.__sort(oneList)
+            # self.__sort(twoList)
+            # self.__sort(thirdList)
+            #
+            # for i in range(len(oneList)):
+            #     copy_ls.append(oneList[i])
+            # for i in range(len(twoList)):
+            #     copy_ls.append(twoList[i])
+            # for i in range(len(thirdList)):
+            #     copy_ls.append(thirdList[i])
+
+
+
+            self.network_ctrl_pipe.items.clear()
+
+            for i in range(len(copy_ls)):
+                ms = copy_ls[i]
+
+
+                self.network_ctrl_pipe.put(ms)
+
+
 
     def __network_process(self):
         """
@@ -220,26 +321,38 @@ class Sim:
         """
         edges = self.topology.get_edges().keys()
         self.last_busy_time = {}  # dict(zip(edges, [0.0] * len(edges)))
+        # message = yield self.network_ctrl_pipe.get()
 
         while not self.stop:
+
             message = yield self.network_ctrl_pipe.get()
 
-            # print "NetworkProcess --- Current time %d " %self.env.now
-            # print "name " + message.name
+            ls = list(self.network_ctrl_pipe.items)
+            print("LIST ITEMS" + str(ls))
+
+            print( "NetworkProcess --- Current time %d " %self.env.now)
+            print ("name " + message.name)
+
             # print "Path:",message.path
             # print "DST_INT:",message.dst_int
             # #print message.timestamp
             # print "DST",message.dst
 
+            # comment till here to remove dpto
+
+
             # If same SRC and PATH or the message has achieved the penultimate node to reach the dst
             if not message.path or message.path[-1] == message.dst_int or len(message.path) == 1:
 
                 pipe_id = "%s%s%i" % (
-                message.app_name, message.dst, message.idDES)  # app_name + module_name (dst) + idDES
+                    message.app_name, message.dst, message.idDES)  # app_name + module_name (dst) + idDES
                 # Timestamp reception message in the module
                 message.timestamp_rec = self.env.now
                 # The message is sent to the module.pipe
+                print("message going")
                 self.consumer_pipes[pipe_id].put(message)
+                # self.__dpto()
+
             else:
                 # The message is sent at first time or it sent more times.
                 # if message.dst_int < 0:
@@ -268,6 +381,7 @@ class Sim:
                 """
                 size_bits = message.bytes
                 # size_bits = message.bytes * 8
+
                 try:
                     # transmit = size_bits / (self.topology.get_edge(link)[Topology.LINK_BW] * 1000000.0)  # MBITS!
                     transmit = size_bits / (self.topology.get_edge(link)[Topology.LINK_BW] * 1000000.0)  # MBITS!
@@ -296,11 +410,15 @@ class Sim:
 
                     self.last_busy_time[link] = last_used
                     self.env.process(self.__wait_message(message, latency_msg_link, shift_time))
+
+
+                    flag = False
+
                 except:
                     # This fact is produced when a node or edge the topology is changed or disappeared
                     self.logger.warning(
                         "The initial path assigned is unreachabled. Link: (%i,%i). Routing a new one. %i" % (
-                        link[0], link[1], self.env.now))
+                            link[0], link[1], self.env.now))
 
                     paths, DES_dst = self.selector_path[message.app_name].get_path_from_failure(self, message, link,
                                                                                                 self.alloc_DES,
@@ -320,7 +438,9 @@ class Sim:
                         message.idDES = DES_dst[0]
                         self.logger.debug("(\t New path given. Message is enrouting again.")
                         # print "\t",msg.path
+
                         self.network_ctrl_pipe.put(message)
+
 
     def __wait_message(self, msg, latency, shift_time):
         """
@@ -329,6 +449,7 @@ class Sim:
         self.network_pump += 1
         yield self.env.timeout(latency + shift_time)
         self.network_pump -= 1
+        print("eait msg")
         self.network_ctrl_pipe.put(msg)
 
     def __get_id_process(self):
@@ -397,7 +518,7 @@ class Sim:
             yield self.env.timeout(nextTime)
             if self.des_process_running[idDES]:
                 self.logger.debug("(App:%s#DES:%i)\tModule - Generating Message: %s \t(T:%d)" % (
-                name_app, idDES, message.name, self.env.now))
+                    name_app, idDES, message.name, self.env.now))
 
                 msg = copy.copy(message)
                 msg.timestamp = self.env.now
@@ -477,9 +598,13 @@ class Sim:
             # print "Source DES ",sourceDES
             # print "-" * 50
 
-            if (time_service + self.env.now - float(message.timestamp_rec)
-                                                 + float(message.timestamp_rec) - float(message.timestamp)) != 0:
+            # DPTO
 
+
+
+
+            if (time_service + self.env.now - float(message.timestamp_rec)
+                + float(message.timestamp_rec) - float(message.timestamp)) != 0:
 
                 self.metrics.insert(
                     {"id": message.id, "type": type, "app": app, "module": module, "message": message.name,
@@ -489,11 +614,13 @@ class Sim:
                      "service": time_service, "time_in": self.env.now,
                      "time_out": time_service + self.env.now, "time_emit": float(message.timestamp),
                      "time_reception": float(message.timestamp_rec),
-                     "latency" : float(message.timestamp_rec) - float(message.timestamp),
-                     "time_response" : time_service + self.env.now - float(message.timestamp_rec),
-                     "time_wait" : self.env.now - float(message.timestamp_rec),
-                     "throughput" : message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
-                                                     + float(message.timestamp_rec) - float(message.timestamp))
+                     "latency": float(message.timestamp_rec) - float(message.timestamp),
+                     "time_response": time_service + self.env.now - float(message.timestamp_rec),
+                     "time_wait": self.env.now - float(message.timestamp_rec),
+                     "throughput": message.bytes / (time_service + self.env.now - float(message.timestamp_rec)
+                                                    + float(message.timestamp_rec) - float(message.timestamp))
+
+
 
 
 
@@ -503,7 +630,7 @@ class Sim:
                 self.time_emit = float(message.timestamp)
 
                 return time_service
-            else :
+            else:
 
                 self.metrics.insert(
                     {"id": message.id, "type": type, "app": app, "module": module, "message": message.name,
@@ -517,7 +644,8 @@ class Sim:
                      "time_response": time_service + self.env.now - float(message.timestamp_rec),
                      "time_wait": self.env.now - float(message.timestamp_rec),
 
-                     "throughput": 0
+                     "throughput": None,
+
 
                      })
                 # self.timeIn = self.env.now
@@ -589,6 +717,7 @@ class Sim:
         """
         self.logger.debug("Added_Process - Module Consumer: %s\t#DES:%i" % (module, ides))
         while not self.stop and self.des_process_running[ides]:
+            #self.__dpto()
             if self.des_process_running[ides]:
                 msg = yield self.consumer_pipes["%s%s%i" % (app_name, module, ides)].get()
                 # One pipe for each module name
@@ -627,7 +756,7 @@ class Sim:
                         if not doBefore:
                             self.logger.debug(
                                 "(App:%s#DES:%i#%s)\tModule - Recording the message:\t%s" % (
-                                app_name, ides, module, msg.name))
+                                    app_name, ides, module, msg.name))
                             type = self.NODE_METRIC
 
                             service_time = self.__update_node_metrics(app_name, module, msg, ides, type)
@@ -1156,7 +1285,11 @@ class Sim:
         Args:
             until (int): Defines a stop time. If None the simulation runs until some internal algorithm changes the var *yafs.core.sim.stop* to True
         """
+        #self.env.process(self.__network_process())
+        #p = Process(target=self.__network_process)
         self.env.process(self.__network_process())
+
+
 
         """
         Creating app.sources and deploy the sources in the topology

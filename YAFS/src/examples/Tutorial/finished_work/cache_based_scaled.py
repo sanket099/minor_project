@@ -42,218 +42,218 @@ def create_application():
     """
     Messages among MODULES (AppEdge in iFogSim)
     """
-    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900,broadcasting=False, msgType=0)
-    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900,broadcasting=False, msgType=10)
-    m_b = Message("M.B", "Sensor", "ServiceA", instructions=10000, bytes=100, broadcasting=False, msgType=1)
-    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=11)
+    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_b = Message("M.B", "Sensor", "ServiceA", instructions=10000, bytes=100, broadcasting=False, msgType=3)
+    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=3)
 
     m_c = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=12)
+    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=2)
 
     m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=2)
-    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=12)
+    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=2)
 
     m_e = Message("M.E", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_e2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_e2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=2)
 
-    m_f = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=2)
-    m_f2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=12)
+    m_f = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=3)
+    m_f2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=3)
 
-    m_g = Message("M.G", "Sensor", "ServiceA", instructions=5100, bytes=500, broadcasting=False, msgType=2)
-    m_g2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=12)
+    m_g = Message("M.G", "Sensor", "ServiceA", instructions=5100, bytes=500, broadcasting=False, msgType=1)
+    m_g2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=1)
 
     m_h = Message("M.H", "Sensor", "ServiceA", instructions=60000, bytes=500, broadcasting=False, msgType=2)
-    m_h2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=12)
+    m_h2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=2)
 
-    m_i = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=2)
-    m_i2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=12)
+    m_i = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=1)
+    m_i2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=1)
 
-    m_j = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_j2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_j = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=3)
+    m_j2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=3)
 
-    m_k = Message("M.K", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_k2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_k = Message("M.K", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=3)
+    m_k2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=3)
 
-    m_l = Message("M.L", "Sensor", "ServiceA", instructions=1800, bytes=500, broadcasting=False, msgType=2)
-    m_l2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=12)
+    m_l = Message("M.L", "Sensor", "ServiceA", instructions=1800, bytes=500, broadcasting=False, msgType=1)
+    m_l2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=1)
 
     m_m = Message("M.M", "Sensor", "ServiceA", instructions=2000, bytes=500, broadcasting=False, msgType=2)
-    m_m2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=12)
+    m_m2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=2)
 
-    m_n = Message("M.N", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_n2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
+    m_n = Message("M.N", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=3)
+    m_n2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=3)
     m_o = Message("M.O", "Sensor", "ServiceA", instructions=100, bytes=500, broadcasting=False, msgType=2)
-    m_o2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=12)
+    m_o2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=2)
 
     m_p = Message("M.P", "Sensor", "ServiceA", instructions=900, bytes=500, broadcasting=False, msgType=2)
-    m_p2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=12)
+    m_p2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=2)
 
-    m_q = Message("M.Q", "Sensor", "ServiceA", instructions=7000, bytes=500, broadcasting=False, msgType=2)
-    m_q2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=12)
-    m_r = Message("M.R", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_r2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_q = Message("M.Q", "Sensor", "ServiceA", instructions=7000, bytes=500, broadcasting=False, msgType=1)
+    m_q2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=1)
+    m_r = Message("M.R", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=1)
+    m_r2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=1)
 
-    m_s = Message("M.S", "Sensor", "ServiceA", instructions=600, bytes=500, broadcasting=False, msgType=2)
-    m_s2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=12)
-    m_t = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_t2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_s = Message("M.S", "Sensor", "ServiceA", instructions=600, bytes=500, broadcasting=False, msgType=3)
+    m_s2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=3)
+    m_t = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=3)
+    m_t2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=3)
 
-    m_u = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=2)
-    m_u2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=12)
+    m_u = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=1)
+    m_u2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=1)
     m_v = Message("M.V", "Sensor", "ServiceA", instructions=1000, bytes=500, broadcasting=False, msgType=2)
-    m_v2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=12)
+    m_v2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=2)
 
     m_w = Message("M.W", "Sensor", "ServiceA", instructions=1200, bytes=500, broadcasting=False, msgType=2)
-    m_w2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=12)
+    m_w2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=2)
     m_x = Message("M.X", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_x2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
+    m_x2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=2)
 
     m_y = Message("M.Y", "Sensor", "ServiceA", instructions=80, bytes=500, broadcasting=False, msgType=2)
-    m_y2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=12)
-    m_z = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=2)
-    m_z2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=12)
+    m_y2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=2)
+    m_z = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=1)
+    m_z2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=1)
 
-    m_aa = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=0)
-    m_aa2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=10)
+    m_aa = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_aa2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
     m_bb = Message("M.B", "Sensor", "ServiceA", instructions=10000, bytes=100, broadcasting=False, msgType=1)
-    m_bb2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=11)
+    m_bb2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=1)
 
-    m_cc = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_cc2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=12)
+    m_cc = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=3)
+    m_cc2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=3)
 
-    m_dd = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=2)
-    m_dd2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=12)
+    m_dd = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=3)
+    m_dd2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=3)
 
     m_ee = Message("M.E", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_ee2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_ee2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=2)
 
-    m_ff = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=2)
-    m_ff2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=12)
+    m_ff = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=1)
+    m_ff2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=1)
 
     m_gg = Message("M.G", "Sensor", "ServiceA", instructions=5100, bytes=500, broadcasting=False, msgType=2)
-    m_gg2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=12)
+    m_gg2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=2)
 
-    m_hh = Message("M.H", "Sensor", "ServiceA", instructions=60000, bytes=500, broadcasting=False, msgType=2)
-    m_hh2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=12)
+    m_hh = Message("M.H", "Sensor", "ServiceA", instructions=60000, bytes=500, broadcasting=False, msgType=3)
+    m_hh2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=3)
 
-    m_ii = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=2)
-    m_ii2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=12)
+    m_ii = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=1)
+    m_ii2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=1)
 
-    m_jj = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_jj2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_jj = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=3)
+    m_jj2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=3)
 
-    m_kk = Message("M.K", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_kk2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_kk = Message("M.K", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=1)
+    m_kk2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=1)
 
-    m_ll = Message("M.L", "Sensor", "ServiceA", instructions=1800, bytes=500, broadcasting=False, msgType=2)
-    m_ll2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=12)
+    m_ll = Message("M.L", "Sensor", "ServiceA", instructions=1800, bytes=500, broadcasting=False, msgType=1)
+    m_ll2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=1)
 
     m_mm = Message("M.M", "Sensor", "ServiceA", instructions=2000, bytes=500, broadcasting=False, msgType=2)
-    m_mm2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=12)
+    m_mm2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=2)
 
-    m_nn = Message("M.N", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_nn2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
+    m_nn = Message("M.N", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=3)
+    m_nn2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=3)
     m_oo = Message("M.O", "Sensor", "ServiceA", instructions=100, bytes=500, broadcasting=False, msgType=2)
-    m_oo2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=12)
+    m_oo2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=2)
 
     m_pp = Message("M.P", "Sensor", "ServiceA", instructions=900, bytes=500, broadcasting=False, msgType=2)
-    m_pp2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=12)
+    m_pp2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=2)
 
-    m_qq = Message("M.Q", "Sensor", "ServiceA", instructions=7000, bytes=500, broadcasting=False, msgType=2)
-    m_qq2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=12)
-    m_rr = Message("M.R", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_rr2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_qq = Message("M.Q", "Sensor", "ServiceA", instructions=7000, bytes=500, broadcasting=False, msgType=1)
+    m_qq2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=1)
+    m_rr = Message("M.R", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=3)
+    m_rr2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=3)
 
     m_ss = Message("M.S", "Sensor", "ServiceA", instructions=600, bytes=500, broadcasting=False, msgType=2)
-    m_ss2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=12)
-    m_tt = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_tt2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_ss2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=2)
+    m_tt = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=1)
+    m_tt2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=1)
 
-    m_uu = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=2)
-    m_uu2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=12)
+    m_uu = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=1)
+    m_uu2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=1)
     m_vv = Message("M.V", "Sensor", "ServiceA", instructions=1000, bytes=500, broadcasting=False, msgType=2)
-    m_vv2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=12)
+    m_vv2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=2)
 
-    m_ww = Message("M.W", "Sensor", "ServiceA", instructions=1200, bytes=500, broadcasting=False, msgType=2)
-    m_ww2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=12)
-    m_xx = Message("M.X", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_xx2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
+    m_ww = Message("M.W", "Sensor", "ServiceA", instructions=1200, bytes=500, broadcasting=False, msgType=3)
+    m_ww2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=3)
+    m_xx = Message("M.X", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=3)
+    m_xx2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=3)
 
-    m_yy = Message("M.Y", "Sensor", "ServiceA", instructions=80, bytes=500, broadcasting=False, msgType=2)
-    m_yy2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=12)
+    m_yy = Message("M.Y", "Sensor", "ServiceA", instructions=80, bytes=500, broadcasting=False, msgType=3)
+    m_yy2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=3)
     m_zz = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=2)
-    m_zz2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=12)
+    m_zz2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=2)
 
-    m_aaa = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=0)
-    m_aaa2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=10)
+    m_aaa = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_aaa2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
     m_bbb = Message("M.B", "Sensor", "ServiceA", instructions=10000, bytes=100, broadcasting=False, msgType=1)
-    m_bbb2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=11)
+    m_bbb2 = Message("M.B2", "ServiceA", "Actuator", instructions=10000, bytes=100, broadcasting=False, msgType=1)
 
-    m_ccc = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_ccc2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=12)
+    m_ccc = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=1)
+    m_ccc2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=1)
 
     m_ddd = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=2)
-    m_ddd2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=12)
+    m_ddd2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=2)
 
     m_eee = Message("M.E", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_eee2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_eee2 = Message("M.E2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=2)
 
-    m_fff = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=2)
-    m_fff2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=12)
+    m_fff = Message("M.F", "Sensor", "ServiceA", instructions=4900, bytes=500, broadcasting=False, msgType=3)
+    m_fff2 = Message("M.F2", "ServiceA", "Actuator", instructions=4900, bytes=500, broadcasting=False, msgType=3)
 
-    m_ggg = Message("M.G", "Sensor", "ServiceA", instructions=5100, bytes=500, broadcasting=False, msgType=2)
-    m_ggg2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=12)
+    m_ggg = Message("M.G", "Sensor", "ServiceA", instructions=5100, bytes=500, broadcasting=False, msgType=1)
+    m_ggg2 = Message("M.G2", "ServiceA", "Actuator", instructions=5100, bytes=500, broadcasting=False, msgType=1)
 
-    m_hhh = Message("M.H", "Sensor", "ServiceA", instructions=60000, bytes=500, broadcasting=False, msgType=2)
-    m_hhh2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=12)
+    m_hhh = Message("M.H", "Sensor", "ServiceA", instructions=60000, bytes=500, broadcasting=False, msgType=1)
+    m_hhh2 = Message("M.H2", "ServiceA", "Actuator", instructions=60000, bytes=500, broadcasting=False, msgType=1)
 
-    m_iii = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=2)
-    m_iii2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=12)
+    m_iii = Message("M.I", "Sensor", "ServiceA", instructions=300, bytes=500, broadcasting=False, msgType=3)
+    m_iii2 = Message("M.I2", "ServiceA", "Actuator", instructions=300, bytes=500, broadcasting=False, msgType=3)
 
-    m_jjj = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_jjj2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_jjj = Message("M.J", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=3)
+    m_jjj2 = Message("M.J2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=3)
 
     m_kkk = Message("M.K", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_kkk2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_kkk2 = Message("M.K2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=2)
 
     m_lll = Message("M.L", "Sensor", "ServiceA", instructions=1800, bytes=500, broadcasting=False, msgType=2)
-    m_lll2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=12)
+    m_lll2 = Message("M.L2", "ServiceA", "Actuator", instructions=1800, bytes=500, broadcasting=False, msgType=2)
 
     m_mmm = Message("M.M", "Sensor", "ServiceA", instructions=2000, bytes=500, broadcasting=False, msgType=2)
-    m_mmm2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=12)
+    m_mmm2 = Message("M.M2", "ServiceA", "Actuator", instructions=2000, bytes=500, broadcasting=False, msgType=2)
 
     m_nnn = Message("M.N", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_nnn2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
-    m_ooo = Message("M.O", "Sensor", "ServiceA", instructions=100, bytes=500, broadcasting=False, msgType=2)
-    m_ooo2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=12)
+    m_nnn2 = Message("M.N2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=2)
+    m_ooo = Message("M.O", "Sensor", "ServiceA", instructions=100, bytes=500, broadcasting=False, msgType=1)
+    m_ooo2 = Message("M.O2", "ServiceA", "Actuator", instructions=100, bytes=500, broadcasting=False, msgType=1)
 
-    m_ppp = Message("M.P", "Sensor", "ServiceA", instructions=900, bytes=500, broadcasting=False, msgType=2)
-    m_ppp2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=12)
+    m_ppp = Message("M.P", "Sensor", "ServiceA", instructions=900, bytes=500, broadcasting=False, msgType=1)
+    m_ppp2 = Message("M.P2", "ServiceA", "Actuator", instructions=900, bytes=500, broadcasting=False, msgType=1)
 
     m_qqq = Message("M.Q", "Sensor", "ServiceA", instructions=7000, bytes=500, broadcasting=False, msgType=2)
-    m_qqq2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=12)
+    m_qqq2 = Message("M.Q2", "ServiceA", "Actuator", instructions=7000, bytes=500, broadcasting=False, msgType=2)
     m_rrr = Message("M.R", "Sensor", "ServiceA", instructions=5000, bytes=500, broadcasting=False, msgType=2)
-    m_rrr2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=12)
+    m_rrr2 = Message("M.R2", "ServiceA", "Actuator", instructions=5000, bytes=500, broadcasting=False, msgType=2)
 
     m_sss = Message("M.S", "Sensor", "ServiceA", instructions=600, bytes=500, broadcasting=False, msgType=2)
-    m_sss2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=12)
-    m_ttt = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=2)
-    m_ttt2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=12)
+    m_sss2 = Message("M.S2", "ServiceA", "Actuator", instructions=600, bytes=500, broadcasting=False, msgType=2)
+    m_ttt = Message("M.T", "Sensor", "ServiceA", instructions=4000, bytes=500, broadcasting=False, msgType=3)
+    m_ttt2 = Message("M.T2", "ServiceA", "Actuator", instructions=4000, bytes=500, broadcasting=False, msgType=3)
 
-    m_uuu = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=2)
-    m_uuu2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=12)
+    m_uuu = Message("M.U", "Sensor", "ServiceA", instructions=20000, bytes=500, broadcasting=False, msgType=1)
+    m_uuu2 = Message("M.U2", "ServiceA", "Actuator", instructions=20000, bytes=500, broadcasting=False, msgType=1)
     m_vvv = Message("M.V", "Sensor", "ServiceA", instructions=1000, bytes=500, broadcasting=False, msgType=2)
-    m_vvv2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=12)
+    m_vvv2 = Message("M.V2", "ServiceA", "Actuator", instructions=1000, bytes=500, broadcasting=False, msgType=2)
 
     m_www = Message("M.W", "Sensor", "ServiceA", instructions=1200, bytes=500, broadcasting=False, msgType=2)
-    m_www2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=12)
-    m_xxx = Message("M.X", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=2)
-    m_xxx2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=12)
+    m_www2 = Message("M.W2", "ServiceA", "Actuator", instructions=1200, bytes=500, broadcasting=False, msgType=2)
+    m_xxx = Message("M.X", "Sensor", "ServiceA", instructions=10000, bytes=500, broadcasting=False, msgType=3)
+    m_xxx2 = Message("M.X2", "ServiceA", "Actuator", instructions=10000, bytes=500, broadcasting=False, msgType=3)
 
-    m_yyy = Message("M.Y", "Sensor", "ServiceA", instructions=80, bytes=500, broadcasting=False, msgType=2)
-    m_yyy2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=12)
-    m_zzz = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=2)
-    m_zzz2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=12)
+    m_yyy = Message("M.Y", "Sensor", "ServiceA", instructions=80, bytes=500, broadcasting=False, msgType=1)
+    m_yyy2 = Message("M.Y2", "ServiceA", "Actuator", instructions=80, bytes=500, broadcasting=False, msgType=1)
+    m_zzz = Message("M.Z", "Sensor", "ServiceA", instructions=3000, bytes=500, broadcasting=False, msgType=1)
+    m_zzz2 = Message("M.Z2", "ServiceA", "Actuator", instructions=3000, bytes=500, broadcasting=False, msgType=1)
 
 
     """
@@ -579,7 +579,7 @@ def main(simulated_time):
                app.get_message("M.Y"), app.get_message("M.Z")
                ]
     #sort(msgList) # remove this to make fcfs
-
+    sortQueue(msgList)
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
                              "distribution": dDistribution})  # 5.1}})
@@ -596,7 +596,7 @@ def main(simulated_time):
 
 
 
-    selectorPath = CacheBasedSolution_scaled()
+    selectorPath = FIFO()
 
 
 
@@ -622,7 +622,19 @@ def main(simulated_time):
 def search():
     pass
 
+def sortQueue(msgList):
+    # message list
+    if msgList is not None:
 
+        if len(msgList) != 0:
+
+            n = len(msgList)
+            for i in range(n - 1):
+
+                for j in range(0, n - i - 1):
+
+                    if (msgList[j]).msgType < (msgList[j + 1]).msgType:
+                        msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
 def sort(msgList):
     if msgList is not None:
 

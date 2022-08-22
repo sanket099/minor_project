@@ -8,6 +8,7 @@ from pathlib import Path
 import time
 import numpy as np
 
+
 from my_core import Sim
 from MyApplication import Application, Message
 
@@ -18,10 +19,10 @@ import matplotlib.pyplot as plt
 from simpleSelection import RoundRobin
 from simpleSelection import CacheBasedSolution
 from simplePlacement import CloudPlacement
+
 from MyStats import Stats
 from yafs.distribution import deterministic_distribution
 from yafs.application import fractional_selectivity
-
 
 
 RANDOM_SEED = 1
@@ -40,16 +41,16 @@ def create_application():
     """
     Messages among MODULES (AppEdge in iFogSim)
     """
-    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900,broadcasting=False, msgType=0)
-    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900,broadcasting=False, msgType=10)
-    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=1)
-    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=11)
+    m_a = Message("M.A", "Sensor", "ServiceA", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_a2 = Message("M.A2", "ServiceA", "Actuator", instructions=900, bytes=900, broadcasting=False, msgType=1)
+    m_b = Message("M.B", "Sensor", "ServiceA", instructions=100, bytes=100, broadcasting=False, msgType=3)
+    m_b2 = Message("M.B2", "ServiceA", "Actuator", instructions=100, bytes=100, broadcasting=False, msgType=3)
 
     m_c = Message("M.C", "Sensor", "ServiceA", instructions=500, bytes=200, broadcasting=False, msgType=2)
-    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=12)
+    m_c2 = Message("M.C2", "ServiceA", "Actuator", instructions=500, bytes=200, broadcasting=False, msgType=2)
 
-    m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=2)
-    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=12)
+    m_d = Message("M.D", "Sensor", "ServiceA", instructions=800, bytes=500, broadcasting=False, msgType=1)
+    m_d2 = Message("M.D2", "ServiceA", "Actuator", instructions=800, bytes=500, broadcasting=False, msgType=1)
 
     """
     Defining which messages will be dynamically generated # the generation is controlled by Population algorithm
@@ -84,7 +85,7 @@ def create_json_topology():
     topology_json["entity"] = []
     topology_json["link"] = []
 
-    cloud_dev = {"id": 0, "model": "cloud", "mytag": "cloud", "IPT": 500 , "RAM": 40000, "COST": 3,
+    cloud_dev = {"id": 0, "model": "cloud", "mytag": "cloud", "IPT": 500, "RAM": 40000, "COST": 3,
                  "WATT": 200.0}
     cloud_dev2 = {"id": 3, "model": "cloud", "mytag": "cloud", "IPT": 100, "RAM": 40000, "COST": 3,
                   "WATT": 200.0}
@@ -168,12 +169,12 @@ def main(simulated_time):
     # In addition, a source includes a distribution function:
 
     msgList = [app.get_message("M.A"), app.get_message("M.B"), app.get_message("M.C"), app.get_message("M.D")]
-    #sort(msgList) # remove this to make fcfs
+    # sort(msgList) # remove this to make fcfs
+    sortQueue(msgList)
 
     for i in msgList:
         pop.set_src_control({"model": "sensor-device", "number": 1, "message": i,
                              "distribution": dDistribution})  # 5.1}})
-        
 
         # pop.set_src_control({"model": "sensor-device", "number": 1, "message": app.get_message("M.B"),
         #                      "distribution": dDistribution})  # 5.1}})
@@ -183,7 +184,7 @@ def main(simulated_time):
     # Their "selector" is actually the shortest way, there is not type of orchestration algorithm.
     # This implementation is already created in selector.class,called: First_ShortestPath
 
-    selectorPath = CacheBasedSolution()
+    selectorPath = RoundRobin()
 
     """
     SIMULATION ENGINE
@@ -201,9 +202,26 @@ def main(simulated_time):
 
     s.print_debug_assignaments()
 
-
-
     # s.draw_allocated_topology() # for debugging
+
+def sortQueue(msgList):
+    # message list
+    if msgList is not None:
+
+        if len(msgList) != 0:
+
+            n = len(msgList)
+            for i in range(n - 1):
+
+                for j in range(0, n - i - 1):
+
+                    if (msgList[j]).msgType < (msgList[j + 1]).msgType:
+                        msgList[j], msgList[j + 1] = msgList[j + 1], msgList[j]
+
+    # rules
+
+
+
 def search():
     pass
 
@@ -249,4 +267,3 @@ if __name__ == '__main__':
     print("\t\t Bytes Transmitted : %i" % m.bytes_transmitted())
 
     print("\t\t Energy " + str(m.get_watt(1000, t)))
-

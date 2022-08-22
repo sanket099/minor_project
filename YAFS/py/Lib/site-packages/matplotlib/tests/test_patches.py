@@ -5,13 +5,15 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
+import matplotlib as mpl
+from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle,
+                                FancyArrowPatch)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, style as mstyle, transforms as mtransforms)
+    path as mpath, transforms as mtransforms, rcParams)
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -76,6 +78,27 @@ def test_rotate_rect():
     assert_almost_equal(rect1.get_verts(), new_verts)
 
 
+@check_figures_equal(extensions=['png'])
+def test_rotate_rect_draw(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    loc = (0, 0)
+    width, height = (1, 1)
+    angle = 30
+    rect_ref = Rectangle(loc, width, height, angle=angle)
+    ax_ref.add_patch(rect_ref)
+    assert rect_ref.get_angle() == angle
+
+    # Check that when the angle is updated after adding to an axes, that the
+    # patch is marked stale and redrawn in the correct location
+    rect_test = Rectangle(loc, width, height)
+    assert rect_test.get_angle() == 0
+    ax_test.add_patch(rect_test)
+    rect_test.set_angle(angle)
+    assert rect_test.get_angle() == angle
+
+
 def test_negative_rect():
     # These two rectangles have the same vertices, but starting from a
     # different point.  (We also drop the last vertex, which is a duplicate.)
@@ -86,9 +109,7 @@ def test_negative_rect():
 
 @image_comparison(['clip_to_bbox'])
 def test_clip_to_bbox():
-    fig = plt.figure()
-
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 
@@ -129,17 +150,17 @@ def test_patch_alpha_coloring():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -159,13 +180,6 @@ def test_patch_alpha_override():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               alpha=0.25,
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       alpha=0.25,
@@ -173,11 +187,18 @@ def test_patch_alpha_override():
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
 
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               alpha=0.25,
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
+
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_patch_color_none():
     # Make sure the alpha kwarg does not override 'none' facecolor.
     # Addresses issue #7478.
@@ -198,17 +219,17 @@ def test_patch_custom_linestyle():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(
-        cut_star1,
-        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
-        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection(
         [cut_star2],
         linewidth=5, linestyles=[(0, (5, 7, 10, 7))],
         facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(
+        cut_star1,
+        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
+        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -226,8 +247,7 @@ def test_patch_linestyle_accents():
     linestyles = ["-", "--", "-.", ":",
                   "solid", "dashed", "dashdot", "dotted"]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     for i, ls in enumerate(linestyles):
         star = mpath.Path(verts + i, codes)
         patch = mpatches.PathPatch(star,
@@ -239,6 +259,32 @@ def test_patch_linestyle_accents():
     ax.set_xlim([-1, i + 1])
     ax.set_ylim([-1, i + 1])
     fig.canvas.draw()
+
+
+@check_figures_equal(extensions=['png'])
+def test_patch_linestyle_none(fig_test, fig_ref):
+    circle = mpath.Path.unit_circle()
+
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+    for i, ls in enumerate(['none', 'None', ' ', '']):
+        path = mpath.Path(circle.vertices + i, circle.codes)
+        patch = mpatches.PathPatch(path,
+                                   linewidth=3, linestyle=ls,
+                                   facecolor=(1, 0, 0),
+                                   edgecolor=(0, 0, 1))
+        ax_test.add_patch(patch)
+
+        patch = mpatches.PathPatch(path,
+                                   linewidth=3, linestyle='-',
+                                   facecolor=(1, 0, 0),
+                                   edgecolor='none')
+        ax_ref.add_patch(patch)
+
+    ax_test.set_xlim([-1, i + 1])
+    ax_test.set_ylim([-1, i + 1])
+    ax_ref.set_xlim([-1, i + 1])
+    ax_ref.set_ylim([-1, i + 1])
 
 
 def test_wedge_movement():
@@ -310,6 +356,10 @@ def test_patch_str():
     expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
     assert str(p) == expected
 
+    p = mpatches.Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)
+    expected = "Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)"
+    assert str(p) == expected
+
     p = mpatches.RegularPolygon((1, 2), 20, radius=5)
     assert str(p) == "RegularPolygon((1, 2), 20, radius=5, orientation=0)"
 
@@ -323,6 +373,9 @@ def test_patch_str():
     path = mpath.Path([(1, 2), (2, 2), (1, 2)], closed=True)
     p = mpatches.PathPatch(path)
     assert str(p) == "PathPatch3((1, 2) ...)"
+
+    p = mpatches.Polygon(np.empty((0, 2)))
+    assert str(p) == "Polygon0()"
 
     data = [[1, 2], [2, 2], [1, 2]]
     p = mpatches.Polygon(data)
@@ -358,7 +411,7 @@ def test_multi_color_hatch():
     ax.autoscale(False)
 
     for i in range(5):
-        with mstyle.context({'hatch.color': 'C{}'.format(i)}):
+        with mpl.style.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 
@@ -499,7 +552,37 @@ def test_fancyarrow_units():
     dtime = datetime(2000, 1, 1)
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
-    ax.add_patch(arrow)
+
+
+def test_fancyarrow_setdata():
+    fig, ax = plt.subplots()
+    arrow = ax.arrow(0, 0, 10, 10, head_length=5, head_width=1, width=.5)
+    expected1 = np.array(
+      [[13.54, 13.54],
+       [10.35,  9.65],
+       [10.18,  9.82],
+       [0.18, -0.18],
+       [-0.18,  0.18],
+       [9.82, 10.18],
+       [9.65, 10.35],
+       [13.54, 13.54]]
+    )
+    assert np.allclose(expected1, np.round(arrow.verts, 2))
+
+    expected2 = np.array(
+      [[16.71, 16.71],
+       [16.71, 15.29],
+       [16.71, 15.29],
+       [1.71,  0.29],
+       [0.29,  1.71],
+       [15.29, 16.71],
+       [15.29, 16.71],
+       [16.71, 16.71]]
+    )
+    arrow.set_data(
+        x=1, y=1, dx=15, dy=15, width=2, head_width=2, head_length=1
+    )
+    assert np.allclose(expected2, np.round(arrow.verts, 2))
 
 
 @image_comparison(["large_arc.svg"], style="mpl20")
@@ -559,7 +642,80 @@ def test_rotated_arcs():
         ax.set_aspect("equal")
 
 
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0.5, 0.5), 0.2, 0.05, fc='g')        # circular annulus
+    ell = Annulus((0.5, 0.5), (0.5, 0.3), 0.1, 45,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus_setters():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0., 0.), 0.2, 0.01, fc='g')   # circular annulus
+    ell = Annulus((0., 0.), (1, 2), 0.1, 0,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+    cir.center = (0.5, 0.5)
+    cir.radii = 0.2
+    cir.width = 0.05
+
+    ell.center = (0.5, 0.5)
+    ell.radii = (0.5, 0.3)
+    ell.width = 0.1
+    ell.angle = 45
+
+
 def test_degenerate_polygon():
     point = [0, 0]
     correct_extents = Bbox([point, point]).extents
     assert np.all(Polygon([point]).get_extents().extents == correct_extents)
+
+
+@pytest.mark.parametrize('kwarg', ('edgecolor', 'facecolor'))
+def test_color_override_warning(kwarg):
+    with pytest.warns(UserWarning,
+                      match="Setting the 'color' property will override "
+                            "the edgecolor or facecolor properties."):
+        Patch(color='black', **{kwarg: 'black'})
+
+
+def test_empty_verts():
+    poly = Polygon(np.zeros((0, 2)))
+    assert poly.get_verts() == []
+
+
+def test_default_antialiased():
+    patch = Patch()
+
+    patch.set_antialiased(not rcParams['patch.antialiased'])
+    assert patch.get_antialiased() == (not rcParams['patch.antialiased'])
+    # Check that None resets the state
+    patch.set_antialiased(None)
+    assert patch.get_antialiased() == rcParams['patch.antialiased']
+
+
+def test_default_linestyle():
+    patch = Patch()
+    patch.set_linestyle('--')
+    patch.set_linestyle(None)
+    assert patch.get_linestyle() == 'solid'
+
+
+def test_default_capstyle():
+    patch = Patch()
+    assert patch.get_capstyle() == 'butt'
+
+
+def test_default_joinstyle():
+    patch = Patch()
+    assert patch.get_joinstyle() == 'miter'

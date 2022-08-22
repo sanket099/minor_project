@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import platform
 from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
+from matplotlib.category import UnitData
 import numpy as np
 import pytest
 
@@ -66,7 +67,8 @@ def quantity_converter():
             return None
 
     qc.convert = MagicMock(side_effect=convert)
-    qc.axisinfo = MagicMock(side_effect=lambda u, a: munits.AxisInfo(label=u))
+    qc.axisinfo = MagicMock(side_effect=lambda u, a:
+                            munits.AxisInfo(label=u, default_limits=(0, 100)))
     qc.default_units = MagicMock(side_effect=default_units)
     return qc
 
@@ -127,12 +129,12 @@ def test_jpl_bar_units():
     units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
-    x = [0*units.km, 1*units.km, 2*units.km]
-    w = [1*day, 2*day, 3*day]
+    x = [0 * units.km, 1 * units.km, 2 * units.km]
+    w = [1 * day, 2 * day, 3 * day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
     fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
-    ax.set_ylim([b-1*day, b+w[-1]+(1.001)*day])
+    ax.set_ylim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
 @image_comparison(['jpl_barh_units.png'],
@@ -142,13 +144,13 @@ def test_jpl_barh_units():
     units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
-    x = [0*units.km, 1*units.km, 2*units.km]
-    w = [1*day, 2*day, 3*day]
+    x = [0 * units.km, 1 * units.km, 2 * units.km]
+    w = [1 * day, 2 * day, 3 * day]
     b = units.Epoch("ET", dt=datetime(2009, 4, 25))
 
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
-    ax.set_xlim([b-1*day, b+w[-1]+(1.001)*day])
+    ax.set_xlim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
 def test_empty_arrays():
@@ -165,6 +167,14 @@ def test_scatter_element0_masked():
     fig.canvas.draw()
 
 
+def test_errorbar_mixed_units():
+    x = np.arange(10)
+    y = [datetime(2020, 5, i * 2 + 1) for i in x]
+    fig, ax = plt.subplots()
+    ax.errorbar(x, y, timedelta(days=0.5))
+    fig.canvas.draw()
+
+
 @check_figures_equal(extensions=["png"])
 def test_subclass(fig_test, fig_ref):
     class subdate(datetime):
@@ -172,3 +182,82 @@ def test_subclass(fig_test, fig_ref):
 
     fig_test.subplots().plot(subdate(2000, 1, 1), 0, "o")
     fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")
+
+
+def test_shared_axis_quantity(quantity_converter):
+    munits.registry[Quantity] = quantity_converter
+    x = Quantity(np.linspace(0, 1, 10), "hours")
+    y1 = Quantity(np.linspace(1, 2, 10), "feet")
+    y2 = Quantity(np.linspace(3, 4, 10), "feet")
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex='all', sharey='all')
+    ax1.plot(x, y1)
+    ax2.plot(x, y2)
+    assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "hours"
+    assert ax2.yaxis.get_units() == ax2.yaxis.get_units() == "feet"
+    ax1.xaxis.set_units("seconds")
+    ax2.yaxis.set_units("inches")
+    assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "seconds"
+    assert ax1.yaxis.get_units() == ax2.yaxis.get_units() == "inches"
+
+
+def test_shared_axis_datetime():
+    # datetime uses dates.DateConverter
+    y1 = [datetime(2020, i, 1, tzinfo=timezone.utc) for i in range(1, 13)]
+    y2 = [datetime(2021, i, 1, tzinfo=timezone.utc) for i in range(1, 13)]
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+    ax1.plot(y1)
+    ax2.plot(y2)
+    ax1.yaxis.set_units(timezone(timedelta(hours=5)))
+    assert ax2.yaxis.units == timezone(timedelta(hours=5))
+
+
+def test_shared_axis_categorical():
+    # str uses category.StrCategoryConverter
+    d1 = {"a": 1, "b": 2}
+    d2 = {"a": 3, "b": 4}
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+    ax1.plot(d1.keys(), d1.values())
+    ax2.plot(d2.keys(), d2.values())
+    ax1.xaxis.set_units(UnitData(["c", "d"]))
+    assert "c" in ax2.xaxis.get_units()._mapping.keys()
+
+
+def test_empty_default_limits(quantity_converter):
+    munits.registry[Quantity] = quantity_converter
+    fig, ax1 = plt.subplots()
+    ax1.xaxis.update_units(Quantity([10], "miles"))
+    fig.draw_without_rendering()
+    assert ax1.get_xlim() == (0, 100)
+    ax1.yaxis.update_units(Quantity([10], "miles"))
+    fig.draw_without_rendering()
+    assert ax1.get_ylim() == (0, 100)
+
+    fig, ax = plt.subplots()
+    ax.axhline(30)
+    ax.plot(Quantity(np.arange(0, 3), "miles"),
+            Quantity(np.arange(0, 6, 2), "feet"))
+    fig.draw_without_rendering()
+    assert ax.get_xlim() == (0, 2)
+    assert ax.get_ylim() == (0, 30)
+
+    fig, ax = plt.subplots()
+    ax.axvline(30)
+    ax.plot(Quantity(np.arange(0, 3), "miles"),
+            Quantity(np.arange(0, 6, 2), "feet"))
+    fig.draw_without_rendering()
+    assert ax.get_xlim() == (0, 30)
+    assert ax.get_ylim() == (0, 4)
+
+    fig, ax = plt.subplots()
+    ax.xaxis.update_units(Quantity([10], "miles"))
+    ax.axhline(30)
+    fig.draw_without_rendering()
+    assert ax.get_xlim() == (0, 100)
+    assert ax.get_ylim() == (28.5, 31.5)
+
+    fig, ax = plt.subplots()
+    ax.yaxis.update_units(Quantity([10], "miles"))
+    ax.axvline(30)
+    fig.draw_without_rendering()
+    assert ax.get_ylim() == (0, 100)
+    assert ax.get_xlim() == (28.5, 31.5)

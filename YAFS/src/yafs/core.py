@@ -237,6 +237,7 @@ class Sim:
                 message.timestamp_rec = self.env.now
                 # The message is sent to the module.pipe
                 self.consumer_pipes[pipe_id].put(message)
+
             else:
                 # The message is sent at first time or it sent more times.
                 # if message.dst_int < 0:

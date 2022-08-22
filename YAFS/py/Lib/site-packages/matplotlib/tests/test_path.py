@@ -1,4 +1,3 @@
-import copy
 import re
 
 import numpy as np
@@ -100,6 +99,16 @@ def test_exact_extents(path, extents):
     # Note that counterintuitively, path.get_extents() returns a Bbox, so we
     # have to get that Bbox's `.extents`.
     assert np.all(path.get_extents().extents == extents)
+
+
+@pytest.mark.parametrize('ignored_code', [Path.CLOSEPOLY, Path.STOP])
+def test_extents_with_ignored_codes(ignored_code):
+    # Check that STOP and CLOSEPOLY points are ignored when calculating extents
+    # of a path with only straight lines
+    path = Path([[0, 0],
+                 [1, 1],
+                 [2, 2]], [Path.MOVETO, Path.MOVETO, ignored_code])
+    assert np.all(path.get_extents().extents == (0., 0., 1., 1.))
 
 
 def test_point_in_path_nan():
@@ -323,8 +332,28 @@ def test_path_deepcopy():
     codes = [Path.MOVETO, Path.LINETO]
     path1 = Path(verts)
     path2 = Path(verts, codes)
-    copy.deepcopy(path1)
-    copy.deepcopy(path2)
+    path1_copy = path1.deepcopy()
+    path2_copy = path2.deepcopy()
+    assert path1 is not path1_copy
+    assert path1.vertices is not path1_copy.vertices
+    assert path2 is not path2_copy
+    assert path2.vertices is not path2_copy.vertices
+    assert path2.codes is not path2_copy.codes
+
+
+def test_path_shallowcopy():
+    # Should not raise any error
+    verts = [[0, 0], [1, 1]]
+    codes = [Path.MOVETO, Path.LINETO]
+    path1 = Path(verts)
+    path2 = Path(verts, codes)
+    path1_copy = path1.copy()
+    path2_copy = path2.copy()
+    assert path1 is not path1_copy
+    assert path1.vertices is path1_copy.vertices
+    assert path2 is not path2_copy
+    assert path2.vertices is path2_copy.vertices
+    assert path2.codes is path2_copy.codes
 
 
 @pytest.mark.parametrize('phi', np.concatenate([
@@ -399,6 +428,16 @@ def test_path_intersect_path(phi):
     a = transform.transform_path(Path([(0, 1), (0, 5)]))
     b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
     assert a.intersects_path(b) and b.intersects_path(a)
+
+    # a and b are collinear but do not intersect
+    a = transform.transform_path(Path([(1, -1), (0, -1)]))
+    b = transform.transform_path(Path([(0, 1), (0.9, 1)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
+
+    # a and b are collinear but do not intersect
+    a = transform.transform_path(Path([(0., -5.), (1., -5.)]))
+    b = transform.transform_path(Path([(1., 5.), (0., 5.)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))
