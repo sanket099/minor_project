@@ -493,6 +493,8 @@ class CacheBasedSolution(Selection):
         self.busy = 0
 
 
+
+
     def get_path(self, sim, app_name, message, topology_src, alloc_DES, alloc_module, traffic, from_des):
 
         node_src = topology_src
@@ -1003,6 +1005,12 @@ class CacheBasedSolution_onGoing(Selection):
         self.times = {}
         self.hm = {}
         self.busy = 0
+
+        self.q1 = []
+        self.q2 = []
+        self.q3 = []
+
+        self.waitTime = {}
 
 
     def get_path(self, sim, app_name, message, topology_src, alloc_DES, alloc_module, traffic, from_des):

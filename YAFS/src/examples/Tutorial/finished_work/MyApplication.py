@@ -56,6 +56,8 @@ class Message:
 
     def setMsgType(self, msgType):
         self.msgType = msgType
+    def setInstructions(self, instructions):
+        self.inst = instructions
 
     def setTimeIn(self, timeIn):
         self.timeIn = timeIn
@@ -206,6 +208,8 @@ class Application:
     """
     ADD SERVICE
     """
+    def get_messageList(self):
+        return self.messages
 
     def add_service_source(self, module_name, distribution=None, message=None, module_dest=[], p=[]):
         """
